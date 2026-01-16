@@ -43,22 +43,22 @@
             background: linear-gradient(45deg, #6d28d9, #8b5cf6);
             color: white;
             border: none;
-            padding: 20px 40px;
-            font-size: 1.3em;
+            padding: 15px 30px;
+            font-size: 1em;
             border-radius: 50px;
             cursor: pointer;
-            margin: 20px 0;
+            margin: 10px;
             transition: all 0.3s;
             font-weight: bold;
-            box-shadow: 0 10px 30px rgba(109, 40, 217, 0.3);
+            box-shadow: 0 5px 15px rgba(109, 40, 217, 0.3);
         }
         button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(109, 40, 217, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(109, 40, 217, 0.4);
         }
         .card-result {
-            margin-top: 40px;
-            padding: 30px;
+            margin-top: 30px;
+            padding: 25px;
             background: rgba(255, 255, 255, 0.15);
             border-radius: 15px;
             display: none;
@@ -71,6 +71,38 @@
         .card-meaning {
             font-size: 1.2em;
             line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .btn-save {
+            background: linear-gradient(45deg, #10b981, #34d399);
+        }
+        .btn-new {
+            background: linear-gradient(45deg, #3b82f6, #60a5fa);
+        }
+        .btn-close {
+            background: linear-gradient(45deg, #ef4444, #f87171);
+        }
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+        }
+        .error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
         }
         footer {
             margin-top: 40px;
@@ -89,7 +121,13 @@
         <div class="card-result" id="result">
             <div class="card-name" id="cardName"></div>
             <div class="card-meaning" id="cardMeaning"></div>
+            
+            <div class="action-buttons" id="actionButtons">
+                <!-- Кнопки появятся после вытягивания карты -->
+            </div>
         </div>
+        
+        <div class="message" id="message"></div>
         
         <footer>
             <p>Карты показывают возможности, выбор остаётся за вами</p>
@@ -99,97 +137,143 @@
     <script>
         // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
-        
-        // Минимальная инициализация - только expand
         tg.expand();
         
-        // НЕ используем BackButton пока не нужно
-        // tg.BackButton.show();
-        // tg.BackButton.onClick(() => tg.close());
-
+        // Переменные для хранения текущего результата
+        let currentCard = null;
+        let currentOrientation = null;
+        
         // Карты Таро
         const tarotCards = [
-            {name: "Шут", meaning: "Начало нового пути, спонтанность, свобода"},
-            {name: "Маг", meaning: "Сила воли, мастерство, концентрация"},
-            {name: "Императрица", meaning: "Изобилие, природа, плодородие"},
-            {name: "Император", meaning: "Власть, контроль, стабильность"},
-            {name: "Верховная Жрица", meaning: "Интуиция, тайны, подсознание"},
-            {name: "Иерофант", meaning: "Традиции, духовность, вера"},
-            {name: "Влюбленные", meaning: "Любовь, гармония, партнерство"},
-            {name: "Колесница", meaning: "Победа, движение вперед, контроль"},
-            {name: "Сила", meaning: "Смелость, сострадание, внутренняя сила"},
-            {name: "Отшельник", meaning: "Размышления, поиск истины, мудрость"}
+            {name: "Шут", upright: "Начало нового пути, спонтанность, свобода", reversed: "Безрассудство, риск, незрелость"},
+            {name: "Маг", upright: "Сила воли, мастерство, концентрация", reversed: "Обман, манипуляции, слабость"},
+            {name: "Императрица", upright: "Изобилие, природа, плодородие, красота", reversed: "Зависимость, расточительность, бездействие"},
+            {name: "Император", upright: "Власть, контроль, структура, стабильность", reversed: "Тирания, жесткость, отсутствие дисциплины"},
+            {name: "Верховная Жрица", upright: "Интуиция, тайны, подсознание", reversed: "Скрытые мотивы, подавленная интуиция"},
+            {name: "Иерофант", upright: "Традиции, духовность, вера, образование", reversed: "Догматизм, лицемерие, подавление"},
+            {name: "Влюбленные", upright: "Любовь, гармония, партнерство, выбор", reversed: "Разлад, конфликты, неверный выбор"},
+            {name: "Колесница", upright: "Победа, контроль, движение вперед, воля", reversed: "Потеря контроля, авария, застой"},
+            {name: "Сила", upright: "Смелость, сострадание, внутренняя сила, терпение", reversed: "Слабость, неуверенность, злоупотребление силой"},
+            {name: "Отшельник", upright: "Размышления, поиск истины, одиночество, мудрость", reversed: "Изоляция, одиночество, отказ от помощи"}
         ];
 
-        // Используем addEventListener вместо onclick
+        // Обработчик кнопки "Вытянуть карту"
         document.getElementById('drawBtn').addEventListener('click', function() {
             // Выбираем случайную карту
-            const card = tarotCards[Math.floor(Math.random() * tarotCards.length)];
+            const cardIndex = Math.floor(Math.random() * tarotCards.length);
+            const card = tarotCards[cardIndex];
             const isReversed = Math.random() > 0.5;
             
+            // Сохраняем текущий результат
+            currentCard = card;
+            currentOrientation = isReversed ? 'reversed' : 'upright';
+            
             // Показываем результат
+            const meaning = isReversed ? card.reversed : card.upright;
             document.getElementById('cardName').textContent = 
                 `${card.name} ${isReversed ? '🔽' : '🔼'}`;
             document.getElementById('cardMeaning').textContent = 
-                `${card.meaning} ${isReversed ? '(Перевернутая карта указывает на препятствия)' : ''}`;
+                `${meaning} ${isReversed ? '(Перевернутая карта указывает на препятствия)' : ''}`;
+            
+            // Показываем блок с результатом
             document.getElementById('result').style.display = 'block';
             
-            // ВАЖНО: НЕ используем tg.sendData() - он вызывает закрытие!
-            // Вместо этого можно просто ничего не отправлять
-            // Или использовать безопасный метод:
-            
-            // Альтернатива 1: Сохраняем в sessionStorage
-            try {
-                sessionStorage.setItem('last_card', JSON.stringify({
-                    card: card.name,
-                    orientation: isReversed ? 'reversed' : 'upright',
-                    time: new Date().toISOString()
-                }));
-            } catch(e) {
-                // Игнорируем ошибки
-            }
-            
-            // Альтернатива 2: Показываем кнопку "Сохранить"
-            const saveBtn = document.createElement('button');
-            saveBtn.textContent = '💾 Сохранить результат';
-            saveBtn.style.cssText = `
-                background: linear-gradient(45deg, #10b981, #34d399);
-                margin-top: 20px;
+            // Создаем кнопки действий
+            const actionButtons = document.getElementById('actionButtons');
+            actionButtons.innerHTML = `
+                <button class="btn-save" onclick="saveToChat()">💾 Сохранить в чат</button>
+                <button class="btn-new" onclick="newCard()">🔄 Новая карта</button>
+                <button class="btn-close" onclick="closeApp()">❌ Закрыть</button>
             `;
-            saveBtn.onclick = function() {
-                // Только при явном нажатии "Сохранить" отправляем данные
-                try {
-                    tg.sendData(JSON.stringify({
-                        action: 'save_card',
-                        card: card.name,
-                        orientation: isReversed ? 'reversed' : 'upright'
-                    }));
-                    this.textContent = '✅ Сохранено!';
-                    this.disabled = true;
-                } catch(e) {
-                    this.textContent = '⚠️ Не удалось сохранить';
-                }
-            };
             
-            const resultDiv = document.getElementById('result');
-            if (!document.getElementById('saveBtn')) {
-                resultDiv.appendChild(saveBtn);
-                saveBtn.id = 'saveBtn';
-            }
+            // Скрываем сообщение если было показано
+            hideMessage();
+            
+            // Прокручиваем к результатам
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
         });
-        
-        // Добавляем кнопку закрытия в интерфейсе
-        const closeBtn = document.createElement('button');
-        closeBtn.textContent = '❌ Закрыть приложение';
-        closeBtn.style.cssText = `
-            background: linear-gradient(45deg, #ef4444, #f87171);
-            margin-top: 20px;
-        `;
-        closeBtn.onclick = function() {
+
+        // Функция сохранения в чат
+        function saveToChat() {
+            if (!currentCard) {
+                showMessage('Сначала вытяните карту!', 'error');
+                return;
+            }
+            
+            try {
+                // Формируем текст для отправки в чат
+                const cardText = `
+🔮 *Ваша карта Таро*
+
+🎴 *Карта:* ${currentCard.name}
+${currentOrientation === 'reversed' ? '🔽 *Перевернутая*' : '🔼 *Прямая*'}
+
+*Значение:* ${currentOrientation === 'reversed' ? currentCard.reversed : currentCard.upright}
+
+${currentOrientation === 'reversed' ? '⚠️ *Перевернутая карта указывает на препятствия*' : '✨ *Прямая карта благоприятна*'}
+
+*Дата:* ${new Date().toLocaleDateString('ru-RU')}
+                `.trim();
+                
+                // Отправляем данные в Telegram
+                tg.sendData(JSON.stringify({
+                    action: 'save_to_chat',
+                    card_name: currentCard.name,
+                    orientation: currentOrientation,
+                    meaning: currentOrientation === 'reversed' ? currentCard.reversed : currentCard.upright,
+                    text: cardText,
+                    timestamp: new Date().toISOString()
+                }));
+                
+                // Показываем сообщение об успехе
+                showMessage('✅ Результат сохранен в чат!', 'success');
+                
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+                showMessage('❌ Ошибка при сохранении', 'error');
+            }
+        }
+
+        // Функция для новой карты
+        function newCard() {
+            // Скрываем текущий результат
+            document.getElementById('result').style.display = 'none';
+            currentCard = null;
+            currentOrientation = null;
+            hideMessage();
+            
+            // Прокручиваем к началу
+            document.getElementById('drawBtn').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Функция закрытия приложения
+        function closeApp() {
             tg.close();
-        };
-        
-        document.querySelector('.container').appendChild(closeBtn);
+        }
+
+        // Функция показа сообщения
+        function showMessage(text, type = 'info') {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message ' + type;
+            messageDiv.style.display = 'block';
+            
+            // Автоматическое скрытие через 3 секунды
+            setTimeout(hideMessage, 3000);
+        }
+
+        // Функция скрытия сообщения
+        function hideMessage() {
+            document.getElementById('message').style.display = 'none';
+        }
+
+        // Добавляем BackButton в Telegram
+        if (tg.platform !== 'unknown') {
+            tg.BackButton.show();
+            tg.BackButton.onClick(function() {
+                tg.close();
+            });
+        }
     </script>
 </body>
 </html>
