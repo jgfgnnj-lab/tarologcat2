@@ -84,7 +84,7 @@
         <h1>🔮 Таро Гадание</h1>
         <p class="subtitle">Мини-приложение для гадания на картах Таро</p>
         
-        <button onclick="drawCard()">🎴 Вытянуть карту</button>
+        <button id="drawBtn">🎴 Вытянуть карту</button>
         
         <div class="card-result" id="result">
             <div class="card-name" id="cardName"></div>
@@ -99,9 +99,13 @@
     <script>
         // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
+        
+        // Минимальная инициализация - только expand
         tg.expand();
-        tg.BackButton.show();
-        tg.BackButton.onClick(() => tg.close());
+        
+        // НЕ используем BackButton пока не нужно
+        // tg.BackButton.show();
+        // tg.BackButton.onClick(() => tg.close());
 
         // Карты Таро
         const tarotCards = [
@@ -117,7 +121,8 @@
             {name: "Отшельник", meaning: "Размышления, поиск истины, мудрость"}
         ];
 
-        function drawCard() {
+        // Используем addEventListener вместо onclick
+        document.getElementById('drawBtn').addEventListener('click', function() {
             // Выбираем случайную карту
             const card = tarotCards[Math.floor(Math.random() * tarotCards.length)];
             const isReversed = Math.random() > 0.5;
@@ -128,15 +133,63 @@
             document.getElementById('cardMeaning').textContent = 
                 `${card.meaning} ${isReversed ? '(Перевернутая карта указывает на препятствия)' : ''}`;
             document.getElementById('result').style.display = 'block';
-
-            // Отправляем данные в Telegram бота
-            tg.sendData(JSON.stringify({
-                action: 'tarot_card',
-                card: card.name,
-                orientation: isReversed ? 'reversed' : 'upright',
-                timestamp: new Date().toISOString()
-            }));
-        }
+            
+            // ВАЖНО: НЕ используем tg.sendData() - он вызывает закрытие!
+            // Вместо этого можно просто ничего не отправлять
+            // Или использовать безопасный метод:
+            
+            // Альтернатива 1: Сохраняем в sessionStorage
+            try {
+                sessionStorage.setItem('last_card', JSON.stringify({
+                    card: card.name,
+                    orientation: isReversed ? 'reversed' : 'upright',
+                    time: new Date().toISOString()
+                }));
+            } catch(e) {
+                // Игнорируем ошибки
+            }
+            
+            // Альтернатива 2: Показываем кнопку "Сохранить"
+            const saveBtn = document.createElement('button');
+            saveBtn.textContent = '💾 Сохранить результат';
+            saveBtn.style.cssText = `
+                background: linear-gradient(45deg, #10b981, #34d399);
+                margin-top: 20px;
+            `;
+            saveBtn.onclick = function() {
+                // Только при явном нажатии "Сохранить" отправляем данные
+                try {
+                    tg.sendData(JSON.stringify({
+                        action: 'save_card',
+                        card: card.name,
+                        orientation: isReversed ? 'reversed' : 'upright'
+                    }));
+                    this.textContent = '✅ Сохранено!';
+                    this.disabled = true;
+                } catch(e) {
+                    this.textContent = '⚠️ Не удалось сохранить';
+                }
+            };
+            
+            const resultDiv = document.getElementById('result');
+            if (!document.getElementById('saveBtn')) {
+                resultDiv.appendChild(saveBtn);
+                saveBtn.id = 'saveBtn';
+            }
+        });
+        
+        // Добавляем кнопку закрытия в интерфейсе
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = '❌ Закрыть приложение';
+        closeBtn.style.cssText = `
+            background: linear-gradient(45deg, #ef4444, #f87171);
+            margin-top: 20px;
+        `;
+        closeBtn.onclick = function() {
+            tg.close();
+        };
+        
+        document.querySelector('.container').appendChild(closeBtn);
     </script>
 </body>
 </html>
