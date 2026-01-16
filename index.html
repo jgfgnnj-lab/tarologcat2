@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 Таро Гадание</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            color: #a0a0c0;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+        button {
+            background: linear-gradient(45deg, #6d28d9, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.3em;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px 0;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(109, 40, 217, 0.3);
+        }
+        button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(109, 40, 217, 0.4);
+        }
+        .card-result {
+            margin-top: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            display: none;
+        }
+        .card-name {
+            font-size: 2em;
+            color: #ffd93d;
+            margin-bottom: 15px;
+        }
+        .card-meaning {
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+        footer {
+            margin-top: 40px;
+            color: #a0a0c0;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 Таро Гадание</h1>
+        <p class="subtitle">Мини-приложение для гадания на картах Таро</p>
+        
+        <button onclick="drawCard()">🎴 Вытянуть карту</button>
+        
+        <div class="card-result" id="result">
+            <div class="card-name" id="cardName"></div>
+            <div class="card-meaning" id="cardMeaning"></div>
+        </div>
+        
+        <footer>
+            <p>Карты показывают возможности, выбор остаётся за вами</p>
+        </footer>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.BackButton.show();
+        tg.BackButton.onClick(() => tg.close());
+
+        // Карты Таро
+        const tarotCards = [
+            {name: "Шут", meaning: "Начало нового пути, спонтанность, свобода"},
+            {name: "Маг", meaning: "Сила воли, мастерство, концентрация"},
+            {name: "Императрица", meaning: "Изобилие, природа, плодородие"},
+            {name: "Император", meaning: "Власть, контроль, стабильность"},
+            {name: "Верховная Жрица", meaning: "Интуиция, тайны, подсознание"},
+            {name: "Иерофант", meaning: "Традиции, духовность, вера"},
+            {name: "Влюбленные", meaning: "Любовь, гармония, партнерство"},
+            {name: "Колесница", meaning: "Победа, движение вперед, контроль"},
+            {name: "Сила", meaning: "Смелость, сострадание, внутренняя сила"},
+            {name: "Отшельник", meaning: "Размышления, поиск истины, мудрость"}
+        ];
+
+        function drawCard() {
+            // Выбираем случайную карту
+            const card = tarotCards[Math.floor(Math.random() * tarotCards.length)];
+            const isReversed = Math.random() > 0.5;
+            
+            // Показываем результат
+            document.getElementById('cardName').textContent = 
+                `${card.name} ${isReversed ? '🔽' : '🔼'}`;
+            document.getElementById('cardMeaning').textContent = 
+                `${card.meaning} ${isReversed ? '(Перевернутая карта указывает на препятствия)' : ''}`;
+            document.getElementById('result').style.display = 'block';
+            
+            // Отправляем данные в Telegram бота
+            tg.sendData(JSON.stringify({
+                action: 'tarot_card',
+                card: card.name,
+                orientation: isReversed ? 'reversed' : 'upright',
+                timestamp: new Date().toISOString()
+            }));
+            
+            // Уведомление в Telegram
+            tg.showAlert(`Вы вытянули карту: ${card.name}`);
+        }
+    </script>
+</body>
+</html>
