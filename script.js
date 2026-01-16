@@ -156,8 +156,4 @@ function updateUserInfo() {
 function sendToTelegram(data) {
     tg.sendData(JSON.stringify(data));
 }
-
-// Обработка кнопки "Назад" в Telegram
-tg.BackButton.onClick(() => {
-    tg.close();
 });
