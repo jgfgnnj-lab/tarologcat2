@@ -1,6 +1,6 @@
 // Конфигурация
 const CONFIG = {
-    API_URL: 'https://ваш-домен.vercel.app/api', // Замените на ваш домен
+    API_URL: 'https://tarologcat2.vercel.app/', // Замените на ваш домен
     CARDS_COUNT: 5,
     MAX_QUESTION_LENGTH: 500
 };
