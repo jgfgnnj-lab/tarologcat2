@@ -1,6 +1,6 @@
 // Конфигурация
 const CONFIG = {
-    API_URL: 'https://tarologcat2.vercel.app/', // Замените на ваш домен
+    API_URL: window.location.origin + '/api',
     CARDS_COUNT: 5,
     MAX_QUESTION_LENGTH: 500
 };
@@ -167,31 +167,105 @@ async function startReading() {
     }
 }
 
-// Отобразить карты
-function renderCards() {
-    elements.cardsContainer.innerHTML = '';
+// В функции renderCards():
+async function renderCards() {
+    if (!elements.cardsContainer) return;
     
-    state.cards.forEach((card, index) => {
-        const cardElement = document.createElement('div');
-        cardElement.className = 'card-item';
-        cardElement.innerHTML = `
-            <div class="card-image">
-                <i class="fas fa-star"></i>
-            </div>
-            <div class="card-info">
-                <div class="card-name">${card.name}</div>
-                <div class="card-position">
-                    <i class="fas fa-${card.orientation === 'upright' ? 'arrow-up' : 'arrow-down'}"></i>
-                    ${card.orientation === 'upright' ? 'Прямая' : 'Перевернутая'}
+    elements.cardsContainer.innerHTML = '<div class="loading-cards">Загрузка карт...</div>';
+    
+    // Создаем элементы карт
+    const cardsHTML = await Promise.all(state.cards.map(async (card, index) => {
+        // Пытаемся получить изображение
+        let imageHTML = '';
+        
+        if (card.image_url) {
+            // Если есть прямой URL
+            imageHTML = `
+                <div class="card-image" 
+                     style="background-image: url('${card.image_url}');"
+                     data-card="${card.name}">
+                </div>
+            `;
+        } else if (card.file_id) {
+            // Если есть file_id, пробуем получить через API
+            try {
+                const response = await fetch(`${CONFIG.API_URL}/get-photo?file_id=${card.file_id}`);
+                const data = await response.json();
+                
+                if (data.success && data.url) {
+                    imageHTML = `
+                        <div class="card-image" 
+                             style="background-image: url('${data.url}');"
+                             data-card="${card.name}">
+                        </div>
+                    `;
+                } else {
+                    // Заглушка если не удалось получить
+                    imageHTML = `
+                        <div class="card-image no-image" data-card="${card.name}">
+                            <div class="card-emoji">${getCardEmoji(card.name)}</div>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                console.error('Error loading image:', e);
+                imageHTML = `
+                    <div class="card-image no-image" data-card="${card.name}">
+                        <div class="card-emoji">${getCardEmoji(card.name)}</div>
+                    </div>
+                `;
+            }
+        } else {
+            // Нет данных об изображении
+            imageHTML = `
+                <div class="card-image no-image" data-card="${card.name}">
+                    <div class="card-emoji">${getCardEmoji(card.name)}</div>
+                </div>
+            `;
+        }
+        
+        return `
+            <div class="card-item" data-index="${index}">
+                ${imageHTML}
+                <div class="card-info">
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-position">
+                        ${card.orientation === 'upright' ? '🔼 Прямая' : '🔽 Перевернутая'}
+                    </div>
                 </div>
             </div>
         `;
-        
-        cardElement.addEventListener('click', () => showCardDetails(card, index + 1));
-        elements.cardsContainer.appendChild(cardElement);
+    }));
+    
+    elements.cardsContainer.innerHTML = cardsHTML.join('');
+    
+    // Добавляем обработчики кликов
+    document.querySelectorAll('.card-item').forEach((cardEl, index) => {
+        cardEl.addEventListener('click', () => {
+            showCardDetails(state.cards[index]);
+        });
     });
 }
 
+// Функция для эмодзи-заглушек
+function getCardEmoji(cardName) {
+    const emojiMap = {
+        "Шут": "🎭", "Маг": "🧙", "Верховная Жрица": "👸",
+        "Императрица": "👑", "Император": "🤴", "Иерофант": "🙏",
+        "Влюбленные": "💑", "Колесница": "🛡️", "Сила": "💪",
+        "Отшельник": "🧓", "Колесо Фортуны": "🎡", "Справедливость": "⚖️",
+        "Повешенный": "🙃", "Смерть": "💀", "Умеренность": "⚗️",
+        "Дьявол": "😈", "Башня": "🏰", "Звезда": "⭐",
+        "Луна": "🌙", "Солнце": "☀️", "Суд": "📯", "Мир": "🌎"
+    };
+    
+    // Ищем частичное совпадение
+    for (const [key, emoji] of Object.entries(emojiMap)) {
+        if (cardName.includes(key)) return emoji;
+    }
+    
+    return "🃏";
+}
 // Показать детали карты
 function showCardDetails(card, position) {
     elements.modalBody.innerHTML = `
