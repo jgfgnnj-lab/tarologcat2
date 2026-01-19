@@ -320,44 +320,106 @@ function getCardAdvice(card) {
 
 // Получить интерпретацию
 async function getInterpretation() {
-    if (!state.cards.length || !state.currentReadingId) {
-        showNotification('Сначала выберите карты!');
+    if (!state.cards.length) {
+        showNotification('Сначала начните гадание!');
         return;
     }
     
     showLoader(true);
     
     try {
-        const response = await fetch(`${CONFIG.API_URL}/interpret`, {
+        console.log('Запрос интерпретации для карт:', state.cards.length);
+        
+        const response = await fetch(CONFIG.API_URL + '/interpret', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                reading_id: state.currentReadingId,
-                user_id: tg.initDataUnsafe.user?.id
+                cards: state.cards,
+                question: state.question,
+                reading_id: state.currentReadingId || 'temp_' + Date.now()
             })
         });
         
+        console.log('Статус ответа интерпретации:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('Получена интерпретация:', data);
         
         if (data.success) {
             state.interpretation = data.interpretation;
             renderInterpretation();
             showScreen('interpretation');
         } else {
-            showNotification('Ошибка при получении интерпретации.');
+            showNotification('Ошибка при получении интерпретации: ' + (data.detail || 'Неизвестная ошибка'));
         }
+        
     } catch (error) {
-        console.error('Error:', error);
-        showNotification('Ошибка соединения.');
+        console.error('Ошибка получения интерпретации:', error);
+        showNotification('Ошибка получения интерпретации. Показываю базовую версию...');
+        // Fallback: генерируем базовую интерпретацию локально
+        generateBasicInterpretation();
     } finally {
         showLoader(false);
     }
 }
 
+// Функция для генерации базовой интерпретации если API не работает
+function generateBasicInterpretation() {
+    const cards = state.cards;
+    const question = state.question;
+    
+    let interpretation = `🔮 *Интерпретация расклада:*\n\n`;
+    interpretation += `📝 *Ваш вопрос:* ${question}\n\n`;
+    
+    const positions = [
+        "События которые произойдут",
+        "Возможные преграды", 
+        "Источник неприятностей",
+        "Рекомендации к действию",
+        "Как будут развиваться события"
+    ];
+    
+    cards.forEach((card, index) => {
+        const position = positions[index] || `Позиция ${index + 1}`;
+        const orientationIcon = card.orientation === 'upright' ? '🔼' : '🔽';
+        
+        interpretation += `**${position}:**\n`;
+        interpretation += `• *Карта:* ${card.name} ${orientationIcon}\n`;
+        interpretation += `• *Значение:* ${card.meaning || 'Нет описания'}\n\n`;
+    });
+    
+    // Анализ
+    const uprightCount = cards.filter(card => card.orientation === 'upright').length;
+    const totalCards = cards.length;
+    
+    interpretation += "📊 *Общий анализ:*\n";
+    
+    if (uprightCount === totalCards) {
+        interpretation += "Все карты прямые - очень благоприятный знак!\n";
+    } else if (uprightCount >= totalCards / 2) {
+        interpretation += "Большинство карт прямые - позитивная динамика.\n";
+    } else {
+        interpretation += "Много перевернутых карт - время для размышлений.\n";
+    }
+    
+    interpretation += "\n💫 *Совет:* Доверьтесь своей интуиции.\n";
+    interpretation += "\n✨ *Пусть звёзды благоволят вам!* ✨";
+    
+    state.interpretation = interpretation;
+    renderInterpretation();
+    showScreen('interpretation');
+}
+
 // Отобразить интерпретацию
 function renderInterpretation() {
+    if (!elements.interpretationContent) return;
+    
     elements.interpretationContent.innerHTML = `
         <div style="margin-bottom: 25px;">
             <h3 style="color: #4cc9f0; margin-bottom: 10px;">📝 Ваш вопрос:</h3>
@@ -368,32 +430,45 @@ function renderInterpretation() {
         
         <h3 style="color: #4cc9f0; margin-bottom: 15px;">🔮 Интерпретация карт:</h3>
         
-        ${state.cards.map((card, index) => `
-            <div class="card-interpretation">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <strong style="color: #72efdd;">${index + 1}. ${card.name}</strong>
-                    <span style="color: ${card.orientation === 'upright' ? '#4ade80' : '#f72585'}">
-                        ${card.orientation === 'upright' ? '🔼 Прямая' : '🔽 Перевернутая'}
-                    </span>
+        ${state.cards.map((card, index) => {
+            const positions = [
+                "События которые произойдут",
+                "Возможные преграды", 
+                "Источник неприятностей",
+                "Рекомендации к действию",
+                "Как будут развиваться события"
+            ];
+            const position = positions[index] || `Позиция ${index + 1}`;
+            
+            return `
+                <div class="card-interpretation">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                        <strong style="color: #72efdd;">${index + 1}. ${card.name}</strong>
+                        <span style="color: ${card.orientation === 'upright' ? '#4ade80' : '#f72585'}">
+                            ${card.orientation === 'upright' ? '🔼 Прямая' : '🔽 Перевернутая'}
+                        </span>
+                    </div>
+                    <div style="margin-bottom: 5px; font-size: 14px; color: #a9a9a9;">
+                        <strong>Позиция:</strong> ${position}
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Значение:</strong> ${card.meaning || 'Нет описания'}
+                    </div>
                 </div>
-                <div style="margin-bottom: 10px;">
-                    <strong>Значение:</strong> ${card.meaning}
-                </div>
-                <div style="font-size: 14px;">
-                    <strong>Позиция в раскладе:</strong> ${getPositionMeaning(index + 1)}
-                </div>
-            </div>
-        `).join('')}
+            `;
+        }).join('')}
         
         ${state.interpretation ? `
             <div style="margin-top: 25px; padding: 20px; background: rgba(76, 201, 240, 0.1); border-radius: 15px;">
                 <h4 style="color: #4cc9f0; margin-bottom: 10px;">✨ Полный анализ:</h4>
-                <p>${state.interpretation}</p>
+                <p style="white-space: pre-line;">${state.interpretation}</p>
             </div>
         ` : ''}
         
-        <div style="margin-top: 25px; text-align: center; color: #a9a9a9; font-size: 14px;">
-            <i class="fas fa-crystal-ball"></i> Запомните этот расклад или сохраните его в истории.
+        <div style="margin-top: 25px; text-align: center;">
+            <button class="btn-success" onclick="saveReading()" style="width: 100%; padding: 15px;">
+                <i class="fas fa-save"></i> Сохранить расклад
+            </button>
         </div>
     `;
 }
