@@ -132,7 +132,7 @@ async function startReading() {
     
     try {
         // Получаем случайные карты с бэкенда
-        const response = await fetch(`${CONFIG.API_URL}/draw-cards`, {
+        const response = await fetch(`${window.location.origin}/api/draw-cards`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
