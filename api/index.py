@@ -58,36 +58,63 @@ DB_PATH = init_db()
 def load_tarot_cards():
     """Загрузка всех карт Таро из file_ids.json"""
     try:
-        print("🔄 Загрузка карт Таро...")
+        print("=" * 50)
+        print("🔄 НАЧАЛО ЗАГРУЗКИ КАРТ ТАРО")
+        print("=" * 50)
         
-        # ТОЧНЫЙ ПУТЬ к файлу (судя по debug, файл в api/)
+        # ТОЧНЫЙ ПУТЬ к файлу
         file_path = "api/file_ids.json"
+        print(f"🔍 Ищу файл по пути: {file_path}")
+        print(f"📁 Текущая директория: {os.getcwd()}")
         
-        print(f"🔍 Загружаю из: {file_path}")
-        
+        # Проверяем существование файла
         if os.path.exists(file_path):
-            with open(file_path, 'r', encoding='utf-8') as f:
-                loaded_data = json.load(f)
-                print(f"✅ Успешно загружено {len(loaded_data)} карт из {file_path}")
+            print(f"✅ Файл найден: {file_path}")
+            print(f"📊 Размер файла: {os.path.getsize(file_path)} байт")
         else:
-            print(f"❌ Файл не найден: {file_path}")
-            # Вывод списка файлов для отладки
+            print(f"❌ Файл НЕ найден: {file_path}")
+            print("📁 Содержимое текущей директории:")
             try:
-                print("📁 Содержимое папки 'api':")
-                for item in os.listdir('api'):
+                for item in os.listdir('.'):
                     print(f"  - {item}")
             except Exception as e:
-                print(f"⚠️ Не могу прочитать папку api: {e}")
+                print(f"⚠️ Ошибка чтения директории: {e}")
+            return []
+        
+        # Читаем файл
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                loaded_data = json.load(f)
+                print(f"✅ JSON успешно распарсен")
+                print(f"📈 Количество записей в JSON: {len(loaded_data)}")
+                
+                # Выводим первые 3 карты для проверки
+                print("🎴 Примеры карт:")
+                for i, (name, file_id) in enumerate(list(loaded_data.items())[:3]):
+                    print(f"  {i+1}. {name} -> {file_id[:30]}...")
+        except json.JSONDecodeError as e:
+            print(f"❌ Ошибка парсинга JSON: {e}")
+            return []
+        except Exception as e:
+            print(f"❌ Ошибка чтения файла: {e}")
             return []
         
         # Загружаем значения карт
+        print("📚 Загружаем значения карт...")
         card_meanings = get_card_meanings()
+        print(f"✅ Загружено значений карт: {len(card_meanings)}")
         
         # Создаем структурированные карты
         tarot_cards = []
+        processed_count = 0
+        
         for i, (name, file_id) in enumerate(loaded_data.items()):
             # Получаем значения карты
             meaning_data = card_meanings.get(name, {})
+            
+            if not meaning_data:
+                print(f"⚠️ Для карты '{name}' нет значений в card_meanings")
+            
             upright_meaning = meaning_data.get("upright", f"Прямое значение {name}")
             reversed_meaning = meaning_data.get("reversed", f"Перевернутое значение {name}")
             
@@ -98,19 +125,25 @@ def load_tarot_cards():
                 "meaning_upright": upright_meaning,
                 "meaning_reversed": reversed_meaning
             })
+            
+            processed_count += 1
+            if processed_count <= 3:  # Логируем первые 3 карты
+                print(f"  🃏 Карта {processed_count}: {name}")
+                print(f"    file_id: {file_id[:20]}...")
+                print(f"    upright: {upright_meaning[:30]}...")
         
-        print(f"🎉 Итог: {len(tarot_cards)} карт загружено и структурировано")
+        print("=" * 50)
+        print(f"🎉 ЗАГРРУЗКА ЗАВЕРШЕНА")
+        print(f"📦 Всего карт обработано: {len(tarot_cards)}")
+        print("=" * 50)
+        
         return tarot_cards
         
-    except json.JSONDecodeError as e:
-        print(f"❌ Ошибка JSON в файле: {e}")
-        return []
     except Exception as e:
-        print(f"💥 Критическая ошибка загрузки карт: {e}")
+        print(f"💥 КРИТИЧЕСКАЯ ОШИБКА: {e}")
         import traceback
         traceback.print_exc()
         return []
-
 def get_card_meaning_by_name(card_name, orientation):
     """Получить значение карты по имени из полного словаря"""
     
