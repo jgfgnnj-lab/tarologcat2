@@ -740,7 +740,33 @@ def generate_interpretation(cards, question):
     interpretation += f"✨ *Пусть звёзды благоволят вам!* ✨"
     
     return interpretation
-
+@app.get("/api/debug")
+async def debug():
+    """Endpoint для отладки"""
+    import os
+    
+    info = {
+        "current_directory": os.getcwd(),
+        "files_in_root": [],
+        "files_in_api": [],
+        "file_exists": {
+            "file_ids.json": os.path.exists("file_ids.json"),
+            "/tmp/file_ids.json": os.path.exists("/tmp/file_ids.json"),
+            "api/file_ids.json": os.path.exists("api/file_ids.json")
+        }
+    }
+    
+    try:
+        info["files_in_root"] = os.listdir('.')
+    except:
+        pass
+    
+    try:
+        info["files_in_api"] = os.listdir('api')
+    except:
+        pass
+    
+    return info
 # Для локального запуска
 if __name__ == "__main__":
     import uvicorn
