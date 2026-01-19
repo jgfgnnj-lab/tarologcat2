@@ -8,6 +8,7 @@ import random
 from datetime import datetime
 import sqlite3
 import os
+import requests
 
 app = FastAPI(title="Tarot Web App API")
 
