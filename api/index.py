@@ -784,6 +784,30 @@ def generate_interpretation(cards, question):
     interpretation += f"✨ *Пусть звёзды благоволят вам!* ✨"
     
     return interpretation
+
+@app.post("/api/interpret")
+async def interpret_reading(request: dict):
+    """Генерация интерпретации расклада"""
+    try:
+        cards = request.get("cards", [])
+        question = request.get("question", "")
+        
+        if not cards:
+            raise HTTPException(status_code=400, detail="No cards provided")
+        
+        # Генерируем интерпретацию
+        interpretation = generate_interpretation(cards, question)
+        
+        return {
+            "success": True,
+            "interpretation": interpretation,
+            "cards_count": len(cards),
+            "question": question
+        }
+        
+    except Exception as e:
+        print(f"❌ Error in interpret: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 @app.get("/api/debug")
 async def debug():
     """Endpoint для отладки"""
