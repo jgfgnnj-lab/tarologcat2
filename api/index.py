@@ -101,7 +101,7 @@ def load_tarot_cards():
         
         # Загружаем значения карт
         print("📚 Загружаем значения карт...")
-        card_meanings = get_card_meanings()
+        card_meanings = get_card_meaning()
         print(f"✅ Загружено значений карт: {len(card_meanings)}")
         
         # Создаем структурированные карты
@@ -144,7 +144,7 @@ def load_tarot_cards():
         import traceback
         traceback.print_exc()
         return []
-def get_card_meanings(card_name, orientation):
+def get_card_meaning(card_name, orientation):
     """Получить значение карты по имени из полного словаря"""
     
     # ПОЛНЫЙ СЛОВАРЬ ЗНАЧЕНИЙ (78 карт)
