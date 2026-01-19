@@ -148,6 +148,49 @@ textarea:focus {
     margin-top: 10px;
 }
 
+/* Стили для карт с изображениями */
+.card-image {
+    height: 160px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 10px 10px 0 0;
+    position: relative;
+}
+
+.card-image.no-image {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-emoji {
+    font-size: 50px;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
+}
+
+.loading-cards {
+    text-align: center;
+    padding: 40px;
+    color: #4cc9f0;
+    font-size: 18px;
+}
+
+/* Анимация появления карт */
+.card-item {
+    animation: cardAppear 0.5s ease forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+@keyframes cardAppear {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Контейнер карт */
 .cards-container {
     display: grid;
