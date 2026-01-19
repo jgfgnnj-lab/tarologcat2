@@ -56,6 +56,27 @@ def init_db():
 # Инициализируем БД при старте
 DB_PATH = init_db()
 
+@app.get("/api/get-photo")
+async def get_photo(file_id: str):
+    """Получить фото из Telegram по file_id"""
+    try:
+        # Используй токен твоего бота
+        BOT_TOKEN = "8584327693:AAExuS-6KVLu3nn5NKm1KLtCEAMkJK9L7nc"
+        
+        # Получаем информацию о файле
+        file_info_url = f"https://api.telegram.org/bot{BOT_TOKEN}/getFile?file_id={file_id}"
+        file_response = requests.get(file_info_url).json()
+        
+        if file_response["ok"]:
+            file_path = file_response["result"]["file_path"]
+            # Создаем URL для скачивания
+            photo_url = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+            return {"success": True, "url": photo_url}
+        
+        return {"success": False, "url": ""}
+    except:
+        return {"success": False, "url": ""}
+
 # Загрузка карт Таро из вашего file_ids.json
 def load_tarot_cards():
     try:
