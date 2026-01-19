@@ -60,6 +60,7 @@ def load_tarot_cards():
     try:
         # Ищем файл в разных местах
         possible_paths = [
+            "api/file_ids.json",
             "file_ids.json",
             "/tmp/file_ids.json",
             "../file_ids.json",
