@@ -464,8 +464,7 @@ def get_card_meanings():
     }
     
     # Проверяем, есть ли карта в словаре
-    if card_name in TAROT_MEANINGS:
-        return TAROT_MEANINGS
+    return TAROT_MEANINGS
     
     # Fallback для неизвестных карт
     print(f"⚠️ Карта '{card_name}' не найдена в словаре значений")
