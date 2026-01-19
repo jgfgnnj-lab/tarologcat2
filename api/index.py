@@ -58,45 +58,57 @@ DB_PATH = init_db()
 def load_tarot_cards():
     """Загрузка всех карт Таро из file_ids.json"""
     try:
-        # Ищем файл в разных местах
-        possible_paths = [
-            "api/file_ids.json",
-            "file_ids.json",
-            "/tmp/file_ids.json",
-            "../file_ids.json",
-            "./file_ids.json"
-        ]
+        print("🔄 Загрузка карт Таро...")
         
-        for path in possible_paths:
+        # ТОЧНЫЙ ПУТЬ к файлу (судя по debug, файл в api/)
+        file_path = "api/file_ids.json"
+        
+        print(f"🔍 Загружаю из: {file_path}")
+        
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                loaded_data = json.load(f)
+                print(f"✅ Успешно загружено {len(loaded_data)} карт из {file_path}")
+        else:
+            print(f"❌ Файл не найден: {file_path}")
+            # Вывод списка файлов для отладки
             try:
-                if os.path.exists(path):
-                    with open(path, 'r', encoding='utf-8') as f:
-                        file_ids = json.load(f)
-                        print(f"✅ Загружено {len(file_ids)} карт из {path}")
-                        
-                        # Создаем структурированный список карт
-                        tarot_cards = []
-                        card_meanings = get_card_meanings()
-                        
-                        for i, (name, file_id) in enumerate(file_ids.items()):
-                            tarot_cards.append({
-                                "id": i,
-                                "name": name,
-                                "file_id": file_id,
-                                "meaning_upright": card_meanings.get(name, {}).get("upright", f"Прямое значение {name}"),
-                                "meaning_reversed": card_meanings.get(name, {}).get("reversed", f"Перевернутое значение {name}")
-                            })
-                        
-                        return tarot_cards
+                print("📁 Содержимое папки 'api':")
+                for item in os.listdir('api'):
+                    print(f"  - {item}")
             except Exception as e:
-                print(f"⚠️ Ошибка загрузки {path}: {e}")
-                continue
+                print(f"⚠️ Не могу прочитать папку api: {e}")
+            return []
         
-        print("❌ Файл file_ids.json не найден")
+        # Загружаем значения карт
+        card_meanings = get_card_meanings()
+        
+        # Создаем структурированные карты
+        tarot_cards = []
+        for i, (name, file_id) in enumerate(loaded_data.items()):
+            # Получаем значения карты
+            meaning_data = card_meanings.get(name, {})
+            upright_meaning = meaning_data.get("upright", f"Прямое значение {name}")
+            reversed_meaning = meaning_data.get("reversed", f"Перевернутое значение {name}")
+            
+            tarot_cards.append({
+                "id": i,
+                "name": name,
+                "file_id": file_id,
+                "meaning_upright": upright_meaning,
+                "meaning_reversed": reversed_meaning
+            })
+        
+        print(f"🎉 Итог: {len(tarot_cards)} карт загружено и структурировано")
+        return tarot_cards
+        
+    except json.JSONDecodeError as e:
+        print(f"❌ Ошибка JSON в файле: {e}")
         return []
-        
     except Exception as e:
-        print(f"❌ Критическая ошибка загрузки карт: {e}")
+        print(f"💥 Критическая ошибка загрузки карт: {e}")
+        import traceback
+        traceback.print_exc()
         return []
 
 def get_card_meaning_by_name(card_name, orientation):
