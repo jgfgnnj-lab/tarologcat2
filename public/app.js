@@ -116,6 +116,35 @@ function updateCharCounter() {
 
 // Начать гадание
 async function startReading() {
+
+    // 1. Проверяем и списываем лапки
+    const pawsResponse = await fetch(`${window.location.origin}/api/check-paws`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            user_id: tg.initDataUnsafe.user?.id,
+            question: state.question
+        })
+    });
+    
+    const pawsData = await pawsResponse.json();
+    
+    if (!pawsData.success) {
+        showNotification(`❌ ${pawsData.error || 'Ошибка списания лапок'}`);
+        return;
+    }
+    
+    // 2. Если лапки списаны, получаем карты
+    const cardsResponse = await fetch(`${window.location.origin}/api/draw-cards`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            question: state.question,
+            count: CONFIG.CARDS_COUNT,
+            user_id: tg.initDataUnsafe.user?.id
+        })
+    });
+    
     state.question = elements.questionInput.value.trim();
     
     if (!state.question) {
