@@ -722,6 +722,110 @@ async def get_history(user_id: int):
             detail=f"Ошибка получения истории: {str(e)}"
         )
 
+@app.post("/api/check-paws")
+async def check_and_spend_paws(request: dict):
+    """Проверка и списание лапок для веб-приложения"""
+    try:
+        user_id = request.get("user_id")
+        question = request.get("question", "")
+        
+        if not user_id:
+            raise HTTPException(status_code=400, detail="user_id is required")
+        
+        # ВАЖНО: Здесь нужно подключиться к БАЗЕ БОТА
+        # У вас две базы:
+        # 1. Локальная SQLite бота (с лапками)
+        # 2. База веб-приложения (с историей)
+        
+        # Подключаемся к базе бота
+        bot_db_path = "tarologcat_bot.db"  # Укажите путь к вашей базе бота
+        try:
+            conn = sqlite3.connect(bot_db_path)
+            cursor = conn.cursor()
+            
+            # Получаем пользователя
+            cursor.execute("SELECT paws_balance FROM users WHERE user_id = ?", (user_id,))
+            result = cursor.fetchone()
+            
+            if not result:
+                raise HTTPException(status_code=404, detail="Пользователь не найден")
+            
+            current_balance = result[0]
+            
+            # Проверяем баланс
+            if current_balance < 1:
+                return {
+                    "success": False,
+                    "error": "Недостаточно лапок",
+                    "balance": current_balance,
+                    "required": 1
+                }
+            
+            # Списание 1 лапки
+            new_balance = current_balance - 1
+            cursor.execute(
+                "UPDATE users SET paws_balance = ? WHERE user_id = ?",
+                (new_balance, user_id)
+            )
+            
+            # Логируем транзакцию в истории веб-приложения
+            transaction_id = f"paws_{datetime.now().strftime('%Y%m%d%H%M%S')}_{random.randint(1000, 9999)}"
+            
+            conn.commit()
+            conn.close()
+            
+            return {
+                "success": True,
+                "message": "1 лапка списана",
+                "new_balance": new_balance,
+                "transaction_id": transaction_id
+            }
+            
+        except Exception as e:
+            return {"success": False, "error": f"Database error: {str(e)}"}
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/get-balance")
+async def get_balance_api(request: dict):
+    """Получение баланса лапок"""
+    try:
+        user_id = request.get("user_id")
+        
+        if not user_id:
+            raise HTTPException(status_code=400, detail="user_id is required")
+        
+        # Подключаемся к базе бота
+        bot_db_path = "tarologcat_bot.db"
+        conn = sqlite3.connect(bot_db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT paws_balance, user_status 
+            FROM users 
+            WHERE user_id = ?
+        """, (user_id,))
+        
+        result = cursor.fetchone()
+        conn.close()
+        
+        if result:
+            return {
+                "success": True,
+                "balance": result[0],
+                "user_status": result[1],
+                "user_id": user_id
+            }
+        
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Вспомогательные функции
 def generate_interpretation(cards, question):
