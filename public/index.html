@@ -3,131 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔮 Гадание Таро</title>
+    <title>🔮 Таро Кот - Гадание и Игры</title>
+    <!-- Все ваши старые стили и скрипты остаются -->
     <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- + Новый стиль для игры -->
+    <link rel="stylesheet" href="memory-game.css">
+    <style>
+        /* Стили для главного меню и кнопки "Назад" */
+        .hidden {
+            display: none !important;
+        }
+        .back-button {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 0.9rem;
+        }
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        #landing-page {
+            max-width: 500px;
+            margin: 60px auto;
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #landing-page h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        #landing-page p {
+            color: #aaa;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+        .mode-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .mode-button {
+            padding: 20px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            transition: transform 0.3s;
+        }
+        .mode-button:hover {
+            transform: translateY(-5px);
+        }
+        .tarot-button {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+        }
+        .game-button {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Шапка -->
-        <header class="header">
-            <h1><i class="fas fa-crystal-ball"></i> Таро-гадание</h1>
-            <p class="subtitle">Задайте вопрос и получите ответ от карт</p>
-        </header>
+    <!-- Кнопка возврата в меню (скрыта на главной) -->
+    <button id="back-button" class="back-button hidden" onclick="showLandingPage()">
+        ← Назад в меню
+    </button>
 
-        <!-- Основной экран с вопросом -->
-        <div id="question-screen" class="screen active">
-            <div class="question-box">
-                <h2><i class="fas fa-question-circle"></i> Ваш вопрос</h2>
-                <textarea id="user-question" placeholder="Напишите ваш вопрос или опишите ситуацию... 
-Например: 'Что ждёт меня в любви?', 'Как сложится карьера?'" maxlength="500"></textarea>
-                <div class="char-counter">Осталось: <span id="char-count">500</span> символов</div>
-                <button id="start-reading" class="btn-primary">
-                    <i class="fas fa-hand-sparkles"></i> Начать гадание
-                </button>
-            </div>
-
-            <div class="instructions">
-                <h3><i class="fas fa-info-circle"></i> Как работает:</h3>
-                <ul>
-                    <li><i class="fas fa-star"></i> Вы задаёте вопрос</li>
-                    <li><i class="fas fa-random"></i> Система выбирает 5 карт из колоды 78 карт</li>
-                    <li><i class="fas fa-eye"></i> Нажимайте на карты для подробного описания</li>
-                    <li><i class="fas fa-save"></i> Результат сохраняется в истории</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Экран выбора карт -->
-        <div id="cards-screen" class="screen">
-            <div class="screen-header">
-                <h2><i class="fas fa-cards"></i> Ваши карты</h2>
-                <p id="current-question"></p>
-            </div>
-
-            <div class="cards-container" id="cards-container">
-                <!-- Карты будут добавляться сюда -->
-            </div>
-
-            <div class="actions">
-                <button id="interpret-btn" class="btn-secondary">
-                    <i class="fas fa-book-open"></i> Получить полную интерпретацию
-                </button>
-                <button id="save-reading" class="btn-success">
-                    <i class="fas fa-save"></i> Сохранить расклад
-                </button>
-                <button id="new-reading" class="btn-outline">
-                    <i class="fas fa-redo"></i> Новое гадание
-                </button>
-            </div>
-        </div>
-
-        <!-- Экран интерпретации -->
-        <div id="interpretation-screen" class="screen">
-            <div class="screen-header">
-                <h2><i class="fas fa-scroll"></i> Интерпретация расклада</h2>
-                <button id="back-to-cards" class="btn-back">
-                    <i class="fas fa-arrow-left"></i> Назад к картам
-                </button>
-            </div>
-
-            <div class="interpretation-content" id="interpretation-content">
-                <!-- Интерпретация будет здесь -->
-            </div>
-        </div>
-
-        <!-- Экран истории -->
-        <div id="history-screen" class="screen">
-            <div class="screen-header">
-                <h2><i class="fas fa-history"></i> История гаданий</h2>
-                <button id="back-to-main" class="btn-back">
-                    <i class="fas fa-arrow-left"></i> Назад
-                </button>
-            </div>
-
-            <div class="history-list" id="history-list">
-                <!-- История будет здесь -->
-            </div>
-        </div>
-
-        <!-- Нижнее меню -->
-        <nav class="bottom-nav">
-            <button class="nav-btn active" data-screen="question">
-                <i class="fas fa-home"></i>
-                <span>Главная</span>
+    <!-- НОВОЕ: Главное меню выбора -->
+    <div id="landing-page">
+        <h1><i class="fas fa-crystal-ball"></i> Таро Кот</h1>
+        <p>Выберите, что хотите сделать</p>
+        <div class="mode-buttons">
+            <button class="mode-button tarot-button" onclick="showTarotMode()">
+                <span>🎴</span>
+                <span>Погадать на картах Таро</span>
             </button>
-            <button class="nav-btn" data-screen="cards" id="nav-cards">
-                <i class="fas fa-cards"></i>
-                <span>Карты</span>
+            <button class="mode-button game-button" onclick="showMemoryGameMode()">
+                <span>🎮</span>
+                <span>Игра на запоминание карт</span>
             </button>
-            <button class="nav-btn" data-screen="history">
-                <i class="fas fa-history"></i>
-                <span>История</span>
-            </button>
-        </nav>
-
-        <!-- Модальное окно для карты -->
-        <div id="card-modal" class="modal">
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <div class="modal-body" id="modal-body">
-                    <!-- Содержимое карты -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Лоадер -->
-        <div id="loader" class="loader-overlay">
-            <div class="loader">
-                <div class="crystal">
-                    <i class="fas fa-gem"></i>
-                </div>
-                <p>Карты выбираются...</p>
-            </div>
         </div>
     </div>
 
+    <!-- ВАШ СТАРЫЙ ИНТЕРФЕЙС ГАДАНИЯ (полностью сохранен) -->
+    <!-- Он будет скрыт (class="hidden") до выбора "Погадать" -->
+    <div id="tarot-interface" class="hidden">
+        <div class="container">
+            <!-- Шапка -->
+            <header class="header">
+                <h1><i class="fas fa-crystal-ball"></i> Таро-гадание</h1>
+                <p class="subtitle">Задайте вопрос и получите ответ от карт</p>
+            </header>
+
+            <!-- Основной экран с вопросом -->
+            <div id="question-screen" class="screen active">
+                <div class="question-box">
+                    <h2><i class="fas fa-question-circle"></i> Ваш вопрос</h2>
+                    <textarea id="user-question" placeholder="Напишите ваш вопрос или опишите ситуацию... 
+    Например: 'Что ждёт меня в любви?', 'Как сложится карьера?'" maxlength="500"></textarea>
+                    <div class="char-counter">Осталось: <span id="char-count">500</span> символов</div>
+                    <button id="start-reading" class="btn-primary">
+                        <i class="fas fa-hand-sparkles"></i> Начать гадание
+                    </button>
+                </div>
+
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> Как работает:</h3>
+                    <ul>
+                        <li><i class="fas fa-star"></i> Вы задаёте вопрос</li>
+                        <li><i class="fas fa-random"></i> Система выбирает 5 карт из колоды 78 карт</li>
+                        <li><i class="fas fa-eye"></i> Нажимайте на карты для подробного описания</li>
+                        <li><i class="fas fa-save"></i> Результат сохраняется в истории</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Экран выбора карт -->
+            <div id="cards-screen" class="screen">
+                <div class="screen-header">
+                    <h2><i class="fas fa-cards"></i> Ваши карты</h2>
+                    <p id="current-question"></p>
+                </div>
+
+                <div class="cards-container" id="cards-container">
+                    <!-- Карты будут добавляться сюда -->
+                </div>
+
+                <div class="actions">
+                    <button id="interpret-btn" class="btn-secondary">
+                        <i class="fas fa-book-open"></i> Получить полную интерпретацию
+                    </button>
+                    <button id="save-reading" class="btn-success">
+                        <i class="fas fa-save"></i> Сохранить расклад
+                    </button>
+                    <button id="new-reading" class="btn-outline">
+                        <i class="fas fa-redo"></i> Новое гадание
+                    </button>
+                </div>
+            </div>
+
+            <!-- Экран интерпретации -->
+            <div id="interpretation-screen" class="screen">
+                <div class="screen-header">
+                    <h2><i class="fas fa-scroll"></i> Интерпретация расклада</h2>
+                    <button id="back-to-cards" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Назад к картам
+                    </button>
+                </div>
+
+                <div class="interpretation-content" id="interpretation-content">
+                    <!-- Интерпретация будет здесь -->
+                </div>
+            </div>
+
+            <!-- Экран истории -->
+            <div id="history-screen" class="screen">
+                <div class="screen-header">
+                    <h2><i class="fas fa-history"></i> История гаданий</h2>
+                    <button id="back-to-main" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Назад
+                    </button>
+                </div>
+
+                <div class="history-list" id="history-list">
+                    <!-- История будет здесь -->
+                </div>
+            </div>
+
+            <!-- Нижнее меню -->
+            <nav class="bottom-nav">
+                <button class="nav-btn active" data-screen="question">
+                    <i class="fas fa-home"></i>
+                    <span>Главная</span>
+                </button>
+                <button class="nav-btn" data-screen="cards" id="nav-cards">
+                    <i class="fas fa-cards"></i>
+                    <span>Карты</span>
+                </button>
+                <button class="nav-btn" data-screen="history">
+                    <i class="fas fa-history"></i>
+                    <span>История</span>
+                </button>
+            </nav>
+
+            <!-- Модальное окно для карты -->
+            <div id="card-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <div class="modal-body" id="modal-body">
+                        <!-- Содержимое карты -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Лоадер -->
+            <div id="loader" class="loader-overlay">
+                <div class="loader">
+                    <div class="crystal">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <p>Карты выбираются...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Конец вашего старого интерфейса -->
+
+    <!-- НОВОЕ: Контейнер для игры -->
+    <div id="memory-game" class="hidden">
+        <!-- Игра загрузится сюда через memory-game.js -->
+    </div>
+
+    <!-- Подключаем скрипты -->
+    <!-- Сначала ваш основной скрипт, затем скрипт игры -->
     <script src="app.js"></script>
+    <script src="memory-game.js"></script>
 </body>
 </html>
