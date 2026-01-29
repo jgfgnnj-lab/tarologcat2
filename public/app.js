@@ -1,9 +1,57 @@
-let currentMode = 'landing'; // 'landing', 'tarot', 'memory'
+// ========== ФУНКЦИИ ДЛЯ ГЛАВНОГО МЕНЮ ==========
 
-// DOM элементы
+// Глобальные переменные для управления режимами
+let currentMode = 'landing'; // 'landing', 'tarot', 'memory'
 let landingPage, tarotInterface, memoryGame, backButton;
 
-// Инициализация при загрузке
+// Функции меню должны быть ОТДЕЛЬНО, не внутри DOMContentLoaded
+function showLandingPage() {
+    if (!landingPage) return; // Проверка, что элементы найдены
+    
+    currentMode = 'landing';
+    landingPage.classList.remove('hidden');
+    if (tarotInterface) tarotInterface.classList.add('hidden');
+    if (memoryGame) memoryGame.classList.add('hidden');
+    if (backButton) backButton.classList.add('hidden');
+    
+    // Останавливаем игру если она запущена
+    if (typeof stopMemoryGame === 'function') {
+        stopMemoryGame();
+    }
+}
+
+function showTarotMode() {
+    if (!tarotInterface) return;
+    
+    currentMode = 'tarot';
+    if (landingPage) landingPage.classList.add('hidden');
+    tarotInterface.classList.remove('hidden');
+    if (memoryGame) memoryGame.classList.add('hidden');
+    if (backButton) backButton.classList.remove('hidden');
+    
+    console.log('Режим гадания активирован');
+}
+
+function showMemoryGameMode() {
+    if (!memoryGame) return;
+    
+    currentMode = 'memory';
+    if (landingPage) landingPage.classList.add('hidden');
+    if (tarotInterface) tarotInterface.classList.add('hidden');
+    memoryGame.classList.remove('hidden');
+    if (backButton) backButton.classList.remove('hidden');
+    
+    // Запускаем игру (функция из memory-game.js)
+    if (typeof startMemoryGame === 'function') {
+        startMemoryGame();
+    } else {
+        console.error('Функция startMemoryGame не найдена. Проверьте memory-game.js');
+    }
+}
+
+// ========== КОНЕЦ ФУНКЦИЙ ДЛЯ МЕНЮ ==========
+
+// Теперь обработчик DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
     // Находим элементы на странице
     landingPage = document.getElementById('landing-page');
@@ -60,40 +108,6 @@ const elements = {
     navBtns: document.querySelectorAll('.nav-btn'),
     navCards: document.getElementById('nav-cards')
 };
-
-function showLandingPage() {
-    currentMode = 'landing';
-    landingPage.classList.remove('hidden');
-    tarotInterface.classList.add('hidden');
-    memoryGame.classList.add('hidden');
-    backButton.classList.add('hidden');
-    
-    // Останавливаем игру если она запущена
-    if (typeof stopMemoryGame === 'function') {
-        stopMemoryGame();
-    }
-}
-
-function showTarotMode() {
-    currentMode = 'tarot';
-    landingPage.classList.add('hidden');
-    tarotInterface.classList.remove('hidden');
-    memoryGame.classList.add('hidden');
-    backButton.classList.remove('hidden');
-}
-
-function showMemoryGameMode() {
-    currentMode = 'memory';
-    landingPage.classList.add('hidden');
-    tarotInterface.classList.add('hidden');
-    memoryGame.classList.remove('hidden');
-    backButton.classList.remove('hidden');
-    
-    // Запускаем игру
-    if (typeof startMemoryGame === 'function') {
-        startMemoryGame();
-    }
-}
     
 // Инициализация
 function init() {
