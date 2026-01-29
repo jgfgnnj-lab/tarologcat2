@@ -1,3 +1,19 @@
+let currentMode = 'landing'; // 'landing', 'tarot', 'memory'
+
+// DOM элементы
+let landingPage, tarotInterface, memoryGame, backButton;
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    // Находим элементы на странице
+    landingPage = document.getElementById('landing-page');
+    tarotInterface = document.getElementById('tarot-interface');
+    memoryGame = document.getElementById('memory-game');
+    backButton = document.getElementById('back-button');
+    
+    // Показываем главное меню
+    showLandingPage();
+
 // Конфигурация
 const CONFIG = {
     API_URL: window.location.origin + '/api',
@@ -45,6 +61,40 @@ const elements = {
     navCards: document.getElementById('nav-cards')
 };
 
+function showLandingPage() {
+    currentMode = 'landing';
+    landingPage.classList.remove('hidden');
+    tarotInterface.classList.add('hidden');
+    memoryGame.classList.add('hidden');
+    backButton.classList.add('hidden');
+    
+    // Останавливаем игру если она запущена
+    if (typeof stopMemoryGame === 'function') {
+        stopMemoryGame();
+    }
+}
+
+function showTarotMode() {
+    currentMode = 'tarot';
+    landingPage.classList.add('hidden');
+    tarotInterface.classList.remove('hidden');
+    memoryGame.classList.add('hidden');
+    backButton.classList.remove('hidden');
+}
+
+function showMemoryGameMode() {
+    currentMode = 'memory';
+    landingPage.classList.add('hidden');
+    tarotInterface.classList.add('hidden');
+    memoryGame.classList.remove('hidden');
+    backButton.classList.remove('hidden');
+    
+    // Запускаем игру
+    if (typeof startMemoryGame === 'function') {
+        startMemoryGame();
+    }
+}
+    
 // Инициализация
 function init() {
     loadHistory();
