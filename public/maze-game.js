@@ -245,6 +245,31 @@ function loadLevel(levelIndex) {
     setTimeout(() => mazeGrid.classList.remove('fade-in'), 500);
 }
 
+/ Функция для добавления стен вокруг клетки
+function addWalls(x, y, walls, maze, size) {
+    const directions = [
+        { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
+        { dx: 0, dy: 1 }, { dx: 0, dy: -1 }
+    ];
+    
+    for (const dir of directions) {
+        const newX = x + dir.dx;
+        const newY = y + dir.dy;
+        
+        // Проверяем, что клетка внутри границ и является стеной
+        if (newX > 0 && newX < size - 1 && 
+            newY > 0 && newY < size - 1 && 
+            maze[newY][newX] === 1) {
+            walls.push({ 
+                x: newX, 
+                y: newY, 
+                fromX: x, 
+                fromY: y 
+            });
+        }
+    }
+}
+
 // Генерация лабиринта (алгоритм Prim)
 function generateMaze(size) {
     // Инициализация
