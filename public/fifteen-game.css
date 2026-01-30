@@ -414,3 +414,34 @@
         font-size: 0.8rem;
     }
 }
+/* Улучшения для мобильных устройств */
+@media (max-width: 768px) {
+    .puzzle-tile {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+    
+    .puzzle-tile:active {
+        transform: scale(0.95);
+        transition: transform 0.1s;
+    }
+    
+    .puzzle-wrapper {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+    }
+}
+
+/* Увеличиваем зону клика для мобильных */
+.puzzle-tile {
+    min-height: 50px;
+    min-width: 50px;
+}
+
+/* Убираем задержку на мобильных */
+@media (hover: none) and (pointer: coarse) {
+    .puzzle-tile:hover {
+        transform: none;
+    }
+}
