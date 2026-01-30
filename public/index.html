@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="memory-game.css">
     <link rel="stylesheet" href="maze-game.css">
+    <link rel="stylesheet" href="fifteen-game.css">
     
     <style>
         /* Стили для главного меню и кнопки "Назад" */
@@ -85,6 +86,10 @@
             background: linear-gradient(135deg, #8b5cf6, #7c3aed);
             color: white;
         }
+        .fifteen-button {
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            color: white;
+        }
         
         /* Гарантируем что наши контейнеры видны */
         #tarot-interface,
@@ -117,7 +122,11 @@
             </button>
             <button class="mode-button maze-button" onclick="window.showMazeMode()">
                 <span>🧩</span>
-                <span>Лабиринт Таро</span>
+                <span>Лабиринт Тоши</span>
+            </button>
+            <button class="mode-button fifteen-button" onclick="window.showFifteenMode()">
+                <span>🐱</span>
+                <span>Котняшки Таро</span>
             </button>
         </div>
     </div>
@@ -252,6 +261,11 @@
     <!-- Контейнер для игры в лабиринт -->
     <div id="maze-game" class="hidden">
         <!-- Игра загрузится сюда через maze-game.js -->
+    </div>
+
+    <!-- Контейнер для игры в пятнашки -->
+    <div id="fifteen-game" class="hidden">
+        <!-- Игра загрузится сюда через fifteen-game.js -->
     </div>
 
     <!-- Подключаем скрипты с правильным порядком -->
@@ -407,6 +421,84 @@
             
             document.head.appendChild(script);
         }
+
+        // Функция показа игры в пятнашки
+        window.showFifteenMode = function() {
+            console.log('showFifteenMode вызвана');
+            
+            currentMode = 'fifteen';
+            landingPage = document.getElementById('landing-page');
+            tarotInterface = document.getElementById('tarot-interface');
+            memoryGame = document.getElementById('memory-game');
+            mazeGame = document.getElementById('maze-game');
+            backButton = document.getElementById('back-button');
+            
+            if (landingPage) landingPage.classList.add('hidden');
+            if (tarotInterface) tarotInterface.classList.add('hidden');
+            if (memoryGame) memoryGame.classList.add('hidden');
+            if (mazeGame) mazeGame.classList.add('hidden');
+            
+            const fifteenGame = document.getElementById('fifteen-game');
+            if (fifteenGame) {
+                fifteenGame.classList.remove('hidden');
+                fifteenGame.style.display = 'block';
+                fifteenGame.style.visibility = 'visible';
+                fifteenGame.style.opacity = '1';
+            }
+            
+            if (backButton) {
+                backButton.classList.remove('hidden');
+                backButton.style.display = 'block';
+            }
+            
+            // Динамически загружаем fifteen-game.js если еще не загружен
+            if (typeof window.startFifteenGame !== 'function') {
+                console.log('Загружаем fifteen-game.js...');
+                loadFifteenGameScript();
+            } else {
+                console.log('fifteen-game.js уже загружен, запускаем игру...');
+                setTimeout(() => {
+                    window.startFifteenGame();
+                }, 100);
+            }
+        };
+        
+        // Функция для динамической загрузки fifteen-game.js
+        function loadFifteenGameScript() {
+            console.log('Загружаем fifteen-game.js...');
+            
+            // Проверяем, не загружен ли уже скрипт
+            const existingScript = document.getElementById('fifteen-game-script');
+            if (existingScript) {
+                console.log('Скрипт уже загружен, удаляем старый...');
+                existingScript.remove();
+            }
+            
+            // Сбрасываем флаги
+            if (window.fifteenGameInitialized) {
+                window.fifteenGameInitialized = false;
+            }
+            
+            const script = document.createElement('script');
+            script.src = 'fifteen-game.js';
+            script.id = 'fifteen-game-script';
+            
+            script.onload = function() {
+                console.log('✅ fifteen-game.js загружен успешно');
+                if (typeof startFifteenGame === 'function') {
+                    setTimeout(() => {
+                        startFifteenGame();
+                    }, 100);
+                }
+            };
+            
+            script.onerror = function() {
+                console.error('❌ Ошибка загрузки fifteen-game.js');
+                alert('Не удалось загрузить игру Пятнашки');
+            };
+            
+            document.head.appendChild(script);
+        }
         
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
@@ -418,5 +510,6 @@
     <!-- Подключаем основные скрипты -->
     <script src="app.js"></script>
     <script src="memory-game.js"></script>
+    <script src="fifteen-game.js"></script>
 </body>
 </html>
