@@ -15,21 +15,28 @@
     
     // Конфигурация игры
     const MAZE_CONFIG = {
-        levels: [
-            { id: 1, size: 8,  time: 90,  stars: 3,  name: "Начальный",  color: "#4ade80" },
-            { id: 2, size: 10, time: 120, stars: 4,  name: "Легкий",     color: "#60a5fa" },
-            { id: 3, size: 12, time: 150, stars: 5,  name: "Средний",    color: "#fbbf24" },
-            { id: 4, size: 14, time: 180, stars: 6,  name: "Сложный",    color: "#f87171" },
-            { id: 5, size: 16, time: 210, stars: 7,  name: "Эксперт",    color: "#c084fc" }
-        ],
-        cellSize: 35,
-        wallColor: '#374151',
-        pathColor: '#1f2937',
-        playerChar: '🐱',
-        exitChar: '🚪',
-        starChar: '⭐',
-        wallChar: '🧱'
-    };
+    levels: [
+        { id: 1, size: 8,  time: 90,  stars: 3,  name: "Начальный",  color: "#4ade80" },
+        { id: 2, size: 10, time: 120, stars: 4,  name: "Легкий",     color: "#60a5fa" },
+        { id: 3, size: 12, time: 150, stars: 5,  name: "Средний",    color: "#fbbf24" },
+        { id: 4, size: 14, time: 180, stars: 6,  name: "Сложный",    color: "#f87171" },
+        { id: 5, size: 16, time: 210, stars: 7,  name: "Эксперт",    color: "#c084fc" }
+    ],
+    // Динамический размер клетки в зависимости от устройства
+    getCellSize: function() {
+        const screenWidth = window.innerWidth;
+        if (screenWidth <= 320) return 22;
+        if (screenWidth <= 380) return 25;
+        if (screenWidth <= 480) return 28;
+        return 35; // для десктопа
+    },
+    wallColor: '#374151',
+    pathColor: '#1f2937',
+    playerChar: '🐱',
+    exitChar: '🚪',
+    starChar: '⭐',
+    wallChar: '🧱'
+};
 
     // Состояние игры (внутри IIFE, поэтому безопасно)
     let gameState = {
