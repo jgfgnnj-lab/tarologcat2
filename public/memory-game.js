@@ -4,7 +4,7 @@ const gameConfig = {
     rows: 4,
     cols: 4,
     totalPairs: 8,
-    cardSymbols: ['❤️', '🃏', '🔮', '✨', '🦄', '🎃', '🌟', '🌕'],
+    cardSymbols: ['❤️', '🃏', '🔮', '☠️', '🦄', '🎃', '🌟', '🌕'],
     gameDuration: 120
 };
 
