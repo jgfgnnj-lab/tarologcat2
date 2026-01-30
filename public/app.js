@@ -1,5 +1,15 @@
 // ========== ФУНКЦИИ ДЛЯ ГЛАВНОГО МЕНЮ ==========
+// Защита от повторного выполнения
+if (window.appJsLoaded) {
+    console.warn('app.js уже загружен, пропускаем повторную инициализацию');
+    // Если функции уже определены, просто выходим
+    if (window.showLandingPage && window.showTarotMode && window.showMemoryGameMode && window.showMazeMode) {
+        throw new Error('app.js already loaded');
+    }
+}
+window.appJsLoaded = true;
 
+console.log('app.js загружается...');
 // Глобальные переменные для управления режимами
 let currentMode = 'landing'; // 'landing', 'tarot', 'memory'
 let landingPage, tarotInterface, memoryGame, backButton;
