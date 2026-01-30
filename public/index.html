@@ -354,45 +354,57 @@
             }
         };
 
-        // Функция для динамической загрузки maze-game.js
+       // Функция для динамической загрузки maze-game.js
         function loadMazeGameScript() {
+            console.log('Загружаем maze-game.js...');
+            
+            // Проверяем, не загружен ли уже скрипт
+            const existingScript = document.getElementById('maze-game-script');
+            if (existingScript) {
+                console.log('Скрипт уже загружен, удаляем старый...');
+                existingScript.remove();
+            }
+            
+            // Проверяем, не инициализирована ли игра уже
+            if (window.mazeGameInitialized) {
+                console.log('Игра уже инициализирована, сбрасываем флаг...');
+                window.mazeGameInitialized = false;
+                // Также сбрасываем другие флаги
+                window._mazeGameLoaded = false;
+                window.mazeGameScriptLoaded = false;
+                window.MAZE_GAME_LOADED = false;
+            }
+            
             const script = document.createElement('script');
             script.src = 'maze-game.js';
+            script.id = 'maze-game-script';
+            
             script.onload = function() {
-                console.log('maze-game.js загружен успешно');
-                if (typeof window.startMazeGame === 'function') {
-                    console.log('startMazeGame найдена, запускаем...');
+                console.log('✅ maze-game.js загружен успешно');
+                console.log('Проверяем startMazeGame:', typeof startMazeGame);
+                console.log('Проверяем mazeGameInitialized:', window.mazeGameInitialized);
+                
+                if (typeof startMazeGame === 'function') {
+                    console.log('✅ startMazeGame найдена, запускаем...');
                     setTimeout(() => {
-                        window.startMazeGame();
+                        try {
+                            startMazeGame();
+                        } catch (error) {
+                            console.error('Ошибка при запуске startMazeGame:', error);
+                            showMazeError('Ошибка запуска: ' + error.message);
+                        }
                     }, 100);
                 } else {
-                    console.error('startMazeGame не найдена после загрузки скрипта');
+                    console.error('❌ startMazeGame не найдена после загрузки');
+                    showMazeError('Функция startMazeGame не определена');
                 }
             };
+            
             script.onerror = function() {
-                console.error('Ошибка загрузки maze-game.js');
-                // Покажем сообщение об ошибке
-                const mazeGame = document.getElementById('maze-game');
-                if (mazeGame) {
-                    mazeGame.innerHTML = `
-                        <div style="text-align: center; padding: 50px; color: white;">
-                            <h2>Ошибка загрузки игры</h2>
-                            <p>Не удалось загрузить игру в лабиринт.</p>
-                            <button onclick="location.reload()" style="
-                                padding: 10px 20px;
-                                background: #6a11cb;
-                                color: white;
-                                border: none;
-                                border-radius: 8px;
-                                cursor: pointer;
-                                margin-top: 20px;
-                            ">
-                                <i class="fas fa-redo"></i> Попробовать снова
-                            </button>
-                        </div>
-                    `;
-                }
+                console.error('❌ Ошибка загрузки maze-game.js');
+                showMazeError('Не удалось загрузить файл maze-game.js');
             };
+            
             document.head.appendChild(script);
         }
         
