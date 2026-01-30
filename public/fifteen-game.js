@@ -194,16 +194,45 @@
     
     // Настройка сенсорного управления
     function setupTouchControls() {
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        
         puzzleGrid.addEventListener('touchstart', (e) => {
             if (e.touches.length === 1) {
-                const touch = e.touches[0];
-                const tile = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (tile && tile.classList.contains('puzzle-tile')) {
-                    const index = parseInt(tile.dataset.index);
-                    moveTile(index);
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+                touchStartTime = Date.now();
+            }
+        }, { passive: true });
+        
+        puzzleGrid.addEventListener('touchend', (e) => {
+            if (e.changedTouches.length === 1) {
+                const touchEndX = e.changedTouches[0].clientX;
+                const touchEndY = e.changedTouches[0].clientY;
+                const touchEndTime = Date.now();
+                
+                // Проверяем, был ли это тап (а не свайп)
+                const diffX = Math.abs(touchEndX - touchStartX);
+                const diffY = Math.abs(touchEndY - touchStartY);
+                const diffTime = touchEndTime - touchStartTime;
+                
+                if (diffX < 10 && diffY < 10 && diffTime < 300) {
+                    // Это был тап - находим элемент под пальцем
+                    const touch = e.changedTouches[0];
+                    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                    
+                    if (element) {
+                        // Ищем ближайший элемент с классом puzzle-tile
+                        const tile = element.closest('.puzzle-tile');
+                        if (tile && tile.dataset.index !== undefined) {
+                            const index = parseInt(tile.dataset.index);
+                            moveTile(index);
+                            e.preventDefault();
+                        }
+                    }
                 }
             }
-            e.preventDefault();
         }, { passive: false });
     }
     
