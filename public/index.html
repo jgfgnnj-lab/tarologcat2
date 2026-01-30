@@ -101,6 +101,10 @@
                 <span>🎮</span>
                 <span>Игра на запоминание карт</span>
             </button>
+            <button class="mode-button maze-button" onclick="showMazeMode()">
+                <span>🧩</span>
+                <span>Лабиринт Таро</span>
+            </button>
         </div>
     </div>
 
@@ -232,7 +236,8 @@
     <div id="memory-game" class="hidden">
         <!-- Игра загрузится сюда через memory-game.js -->
     </div>
-
+    <div id="maze-game" class="hidden">
+    </div>
     <!-- Подключаем скрипты -->
     <!-- Сначала ваш основной скрипт, затем скрипт игры -->
     <script src="app.js"></script>
