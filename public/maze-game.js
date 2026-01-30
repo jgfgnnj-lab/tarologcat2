@@ -364,38 +364,70 @@ function addWalls(x, y, walls, maze, size) {
 
 // Отрисовка лабиринта
 function renderMaze() {
-    if (!mazeGrid) return;
+    console.log('renderMaze вызвана');
+    console.log('mazeGrid элемент:', mazeGrid);
+    console.log('gameState.maze:', gameState.maze);
+    console.log('gameState.player:', gameState.player);
+    
+    if (!mazeGrid) {
+        console.error('mazeGrid не найден!');
+        mazeGrid = document.getElementById('maze-grid');
+        console.log('повторная попытка найти mazeGrid:', mazeGrid);
+        return;
+    }
     
     const level = MAZE_CONFIG.levels[gameState.currentLevel];
     const size = level.size;
+    
+    console.log('Размер лабиринта:', size, 'x', size);
     
     mazeGrid.innerHTML = '';
     mazeGrid.style.gridTemplateColumns = `repeat(${size}, ${MAZE_CONFIG.cellSize}px)`;
     mazeGrid.style.gridTemplateRows = `repeat(${size}, ${MAZE_CONFIG.cellSize}px)`;
     
+    // Добавьте стили для отладки
+    mazeGrid.style.border = '2px solid red';
+    mazeGrid.style.backgroundColor = '#f0f0f0';
+    mazeGrid.style.minHeight = `${size * MAZE_CONFIG.cellSize}px`;
+    
     for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
             const cell = document.createElement('div');
             cell.className = 'maze-cell';
+            cell.dataset.x = x;
+            cell.dataset.y = y;
+            cell.style.border = '1px solid #ccc';
+            cell.style.display = 'flex';
+            cell.style.alignItems = 'center';
+            cell.style.justifyContent = 'center';
             
             // Стена
             if (gameState.maze[y][x] === 1) {
                 cell.classList.add('wall');
                 cell.innerHTML = MAZE_CONFIG.wallChar;
+                cell.style.backgroundColor = '#374151';
+                cell.style.color = '#9ca3af';
             } 
             // Путь
             else {
                 cell.classList.add('path');
+                cell.style.backgroundColor = '#1f2937';
+                cell.style.color = '#d1d5db';
                 
                 // Игрок
                 if (x === gameState.player.x && y === gameState.player.y) {
                     cell.classList.add('player');
                     cell.innerHTML = MAZE_CONFIG.playerChar;
+                    cell.style.backgroundColor = '#ff6b6b';
+                    cell.style.color = 'white';
+                    cell.style.transform = 'scale(1.1)';
                 }
                 // Выход
                 else if (x === gameState.exit.x && y === gameState.exit.y) {
                     cell.classList.add('exit');
                     cell.innerHTML = MAZE_CONFIG.exitChar;
+                    cell.style.backgroundColor = '#4ade80';
+                    cell.style.color = 'white';
                 }
                 // Звезда
                 else {
@@ -404,9 +436,12 @@ function renderMaze() {
                         if (star.collected) {
                             cell.classList.add('star-collected');
                             cell.innerHTML = '✨';
+                            cell.style.color = '#fbbf24';
                         } else {
                             cell.classList.add('star');
                             cell.innerHTML = MAZE_CONFIG.starChar;
+                            cell.style.backgroundColor = '#fbbf24';
+                            cell.style.color = 'white';
                         }
                     }
                 }
@@ -415,6 +450,8 @@ function renderMaze() {
             mazeGrid.appendChild(cell);
         }
     }
+    
+    console.log('Лабиринт отрисован, элементов:', mazeGrid.children.length);
 }
 
 // Движение игрока
