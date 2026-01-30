@@ -400,10 +400,9 @@
                     </div>
                 `;
                 
-                // Анимация для правильных клеток
+                
                 if (isCorrect) {
-                    tileElement.classList.add('pulse');
-                    setTimeout(() => tileElement.classList.remove('pulse'), 1000);
+                    tileElement.classList.add('correct-position');
                 }
             }
             
