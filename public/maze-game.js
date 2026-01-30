@@ -686,3 +686,20 @@ if (typeof window !== 'undefined') {
         console.log('showMazeMode должна быть определена в app.js');
     };
 }
+
+// Глобальная инициализация
+(function() {
+    console.log('maze-game.js инициализирован');
+    
+    // Экспорт функций в глобальную область
+    window.startMazeGame = startMazeGame;
+    window.stopMazeGame = stopMazeGame;
+    
+    // Автоматическая инициализация если нужен тест
+    if (window.location.search.includes('test=maze')) {
+        setTimeout(() => {
+            console.log('Автотест лабиринта');
+            startMazeGame();
+        }, 1000);
+    }
+})();
