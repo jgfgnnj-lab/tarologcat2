@@ -178,6 +178,14 @@
         // Настраиваем обработчики
         setupMazeControls();
         setupTouchControls();
+
+        // Ресайз окна - перерисовываем лабиринт при изменении размера
+        window.addEventListener('resize', () => {
+        if (gameState.isPlaying && mazeGrid && mazeGrid.children.length > 0) {
+            console.log('Перерисовка лабиринта из-за ресайза окна');
+            renderMaze();
+            }
+        });
         
         console.log('UI лабиринта инициализирован');
     }
