@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 Таро Кот - Гадание и Игры</title>
+    
+    <!-- Убираем все React-подобные зависимости -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="memory-game.css">
+    <link rel="stylesheet" href="maze-game.css">
+    
+    <style>
+        /* Стили для главного меню и кнопки "Назад" */
+        .hidden {
+            display: none !important;
+        }
+        .back-button {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 1000;
+            font-size: 0.9rem;
+        }
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        #landing-page {
+            max-width: 500px;
+            margin: 60px auto;
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #landing-page h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        #landing-page p {
+            color: #aaa;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+        .mode-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .mode-button {
+            padding: 20px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            transition: transform 0.3s;
+        }
+        .mode-button:hover {
+            transform: translateY(-5px);
+        }
+        .tarot-button {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+        }
+        .game-button {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+        }
+        .maze-button {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+        
+        /* Гарантируем что наши контейнеры видны */
+        #tarot-interface,
+        #memory-game,
+        #maze-game {
+            display: block;
+            width: 100%;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <!-- Кнопка возврата в меню (скрыта на главной) -->
+    <button id="back-button" class="back-button hidden" onclick="window.showLandingPage()">
+        ← Назад в меню
+    </button>
+
+    <!-- Главное меню выбора -->
+    <div id="landing-page">
+        <h1><i class="fas fa-crystal-ball"></i> Таро Кот</h1>
+        <p>Выберите, что хотите сделать</p>
+        <div class="mode-buttons">
+            <button class="mode-button tarot-button" onclick="window.showTarotMode()">
+                <span>🎴</span>
+                <span>Погадать на картах Таро</span>
+            </button>
+            <button class="mode-button game-button" onclick="window.showMemoryGameMode()">
+                <span>🎮</span>
+                <span>Игра на запоминание карт</span>
+            </button>
+            <button class="mode-button maze-button" onclick="window.showMazeMode()">
+                <span>🧩</span>
+                <span>Лабиринт Таро</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Интерфейс гадания -->
+    <div id="tarot-interface" class="hidden">
+        <div class="container">
+            <!-- Шапка -->
+            <header class="header">
+                <h1><i class="fas fa-crystal-ball"></i> Таро-гадание</h1>
+                <p class="subtitle">Задайте вопрос и получите ответ от карт</p>
+            </header>
+
+            <!-- Основной экран с вопросом -->
+            <div id="question-screen" class="screen active">
+                <div class="question-box">
+                    <h2><i class="fas fa-question-circle"></i> Ваш вопрос</h2>
+                    <textarea id="user-question" placeholder="Напишите ваш вопрос или опишите ситуацию... 
+    Например: 'Что ждёт меня в любви?', 'Как сложится карьера?'" maxlength="500"></textarea>
+                    <div class="char-counter">Осталось: <span id="char-count">500</span> символов</div>
+                    <button id="start-reading" class="btn-primary">
+                        <i class="fas fa-hand-sparkles"></i> Начать гадание
+                    </button>
+                </div>
+
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> Как работает:</h3>
+                    <ul>
+                        <li><i class="fas fa-star"></i> Вы задаёте вопрос</li>
+                        <li><i class="fas fa-random"></i> Система выбирает 5 карт из колоды 78 карт</li>
+                        <li><i class="fas fa-eye"></i> Нажимайте на карты для подробного описания</li>
+                        <li><i class="fas fa-save"></i> Результат сохраняется в истории</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Экран выбора карт -->
+            <div id="cards-screen" class="screen">
+                <div class="screen-header">
+                    <h2><i class="fas fa-cards"></i> Ваши карты</h2>
+                    <p id="current-question"></p>
+                </div>
+
+                <div class="cards-container" id="cards-container">
+                    <!-- Карты будут добавляться сюда -->
+                </div>
+
+                <div class="actions">
+                    <button id="interpret-btn" class="btn-secondary">
+                        <i class="fas fa-book-open"></i> Получить полную интерпретацию
+                    </button>
+                    <button id="save-reading" class="btn-success">
+                        <i class="fas fa-save"></i> Сохранить расклад
+                    </button>
+                    <button id="new-reading" class="btn-outline">
+                        <i class="fas fa-redo"></i> Новое гадание
+                    </button>
+                </div>
+            </div>
+
+            <!-- Экран интерпретации -->
+            <div id="interpretation-screen" class="screen">
+                <div class="screen-header">
+                    <h2><i class="fas fa-scroll"></i> Интерпретация расклада</h2>
+                    <button id="back-to-cards" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Назад к картам
+                    </button>
+                </div>
+
+                <div class="interpretation-content" id="interpretation-content">
+                    <!-- Интерпретация будет здесь -->
+                </div>
+            </div>
+
+            <!-- Экран истории -->
+            <div id="history-screen" class="screen">
+                <div class="screen-header">
+                    <h2><i class="fas fa-history"></i> История гаданий</h2>
+                    <button id="back-to-main" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Назад
+                    </button>
+                </div>
+
+                <div class="history-list" id="history-list">
+                    <!-- История будет здесь -->
+                </div>
+            </div>
+
+            <!-- Нижнее меню -->
+            <nav class="bottom-nav">
+                <button class="nav-btn active" data-screen="question">
+                    <i class="fas fa-home"></i>
+                    <span>Главная</span>
+                </button>
+                <button class="nav-btn" data-screen="cards" id="nav-cards">
+                    <i class="fas fa-cards"></i>
+                    <span>Карты</span>
+                </button>
+                <button class="nav-btn" data-screen="history">
+                    <i class="fas fa-history"></i>
+                    <span>История</span>
+                </button>
+            </nav>
+
+            <!-- Модальное окно для карты -->
+            <div id="card-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <div class="modal-body" id="modal-body">
+                        <!-- Содержимое карты -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Лоадер -->
+            <div id="loader" class="loader-overlay">
+                <div class="loader">
+                    <div class="crystal">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <p>Карты выбираются...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Контейнер для игры на память -->
+    <div id="memory-game" class="hidden">
+        <!-- Игра загрузится сюда через memory-game.js -->
+    </div>
+    
+    <!-- Контейнер для игры в лабиринт -->
+    <div id="maze-game" class="hidden">
+        <!-- Игра загрузится сюда через maze-game.js -->
+    </div>
+
+    <!-- Подключаем скрипты с правильным порядком -->
+    <script>
+        // Глобальный объект для избежания конфликтов с React
+        window.TarotApp = {};
+        
+        // Глобальные переменные для управления режимами
+        let currentMode = 'landing';
+        let landingPage, tarotInterface, memoryGame, backButton;
+        
+        // Функция показа главной страницы
+        window.showLandingPage = function() {
+            console.log('showLandingPage вызвана');
+            
+            currentMode = 'landing';
+            landingPage = document.getElementById('landing-page');
+            tarotInterface = document.getElementById('tarot-interface');
+            memoryGame = document.getElementById('memory-game');
+            backButton = document.getElementById('back-button');
+            
+            if (landingPage) landingPage.classList.remove('hidden');
+            if (tarotInterface) tarotInterface.classList.add('hidden');
+            if (memoryGame) memoryGame.classList.add('hidden');
+            if (backButton) backButton.classList.add('hidden');
+        };
+        
+        // Функция показа режима гадания
+        window.showTarotMode = function() {
+            console.log('showTarotMode вызвана');
+            
+            currentMode = 'tarot';
+            landingPage = document.getElementById('landing-page');
+            tarotInterface = document.getElementById('tarot-interface');
+            memoryGame = document.getElementById('memory-game');
+            backButton = document.getElementById('back-button');
+            
+            if (landingPage) landingPage.classList.add('hidden');
+            if (tarotInterface) tarotInterface.classList.remove('hidden');
+            if (memoryGame) memoryGame.classList.add('hidden');
+            if (backButton) backButton.classList.remove('hidden');
+        };
+        
+        // Функция показа игры на память
+        window.showMemoryGameMode = function() {
+            console.log('showMemoryGameMode вызвана');
+            
+            currentMode = 'memory';
+            landingPage = document.getElementById('landing-page');
+            tarotInterface = document.getElementById('tarot-interface');
+            memoryGame = document.getElementById('memory-game');
+            backButton = document.getElementById('back-button');
+            
+            if (landingPage) landingPage.classList.add('hidden');
+            if (tarotInterface) tarotInterface.classList.add('hidden');
+            if (memoryGame) memoryGame.classList.remove('hidden');
+            if (backButton) backButton.classList.remove('hidden');
+            
+            if (typeof window.startMemoryGame === 'function') {
+                window.startMemoryGame();
+            }
+        };
+        
+       // Функция показа игры в лабиринт
+        window.showMazeMode = function() {
+            console.log('showMazeMode вызвана');
+            
+            currentMode = 'maze';
+            landingPage = document.getElementById('landing-page');
+            tarotInterface = document.getElementById('tarot-interface');
+            memoryGame = document.getElementById('memory-game');
+            backButton = document.getElementById('back-button');
+            
+            if (landingPage) landingPage.classList.add('hidden');
+            if (tarotInterface) tarotInterface.classList.add('hidden');
+            if (memoryGame) memoryGame.classList.add('hidden');
+            
+            const mazeGame = document.getElementById('maze-game');
+            if (mazeGame) {
+                mazeGame.classList.remove('hidden');
+                mazeGame.style.display = 'block';
+                mazeGame.style.visibility = 'visible';
+                mazeGame.style.opacity = '1';
+            }
+            
+            if (backButton) {
+                backButton.classList.remove('hidden');
+                backButton.style.display = 'block';
+            }
+            
+            // Динамически загружаем maze-game.js если еще не загружен
+            if (typeof window.startMazeGame !== 'function') {
+                console.log('Загружаем maze-game.js...');
+                loadMazeGameScript();
+            } else {
+                console.log('maze-game.js уже загружен, запускаем игру...');
+                setTimeout(() => {
+                    window.startMazeGame();
+                }, 100);
+            }
+        };
+
+       // Функция для динамической загрузки maze-game.js
+        function loadMazeGameScript() {
+            console.log('Загружаем maze-game.js...');
+            
+            // Проверяем, не загружен ли уже скрипт
+            const existingScript = document.getElementById('maze-game-script');
+            if (existingScript) {
+                console.log('Скрипт уже загружен, удаляем старый...');
+                existingScript.remove();
+            }
+            
+            // Проверяем, не инициализирована ли игра уже
+            if (window.mazeGameInitialized) {
+                console.log('Игра уже инициализирована, сбрасываем флаг...');
+                window.mazeGameInitialized = false;
+                // Также сбрасываем другие флаги
+                window._mazeGameLoaded = false;
+                window.mazeGameScriptLoaded = false;
+                window.MAZE_GAME_LOADED = false;
+            }
+            
+            const script = document.createElement('script');
+            script.src = 'maze-game.js';
+            script.id = 'maze-game-script';
+            
+            script.onload = function() {
+                console.log('✅ maze-game.js загружен успешно');
+                console.log('Проверяем startMazeGame:', typeof startMazeGame);
+                console.log('Проверяем mazeGameInitialized:', window.mazeGameInitialized);
+                
+                if (typeof startMazeGame === 'function') {
+                    console.log('✅ startMazeGame найдена, запускаем...');
+                    setTimeout(() => {
+                        try {
+                            startMazeGame();
+                        } catch (error) {
+                            console.error('Ошибка при запуске startMazeGame:', error);
+                            showMazeError('Ошибка запуска: ' + error.message);
+                        }
+                    }, 100);
+                } else {
+                    console.error('❌ startMazeGame не найдена после загрузки');
+                    showMazeError('Функция startMazeGame не определена');
+                }
+            };
+            
+            script.onerror = function() {
+                console.error('❌ Ошибка загрузки maze-game.js');
+                showMazeError('Не удалось загрузить файл maze-game.js');
+            };
+            
+            document.head.appendChild(script);
+        }
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM загружен');
+            window.showLandingPage();
+        });
+    </script>
+    
+    <!-- Подключаем основные скрипты -->
+    <script src="app.js"></script>
+    <script src="memory-game.js"></script>
+</body>
+</html>

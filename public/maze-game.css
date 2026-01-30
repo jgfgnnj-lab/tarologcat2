@@ -1,0 +1,382 @@
+/* ========== СТИЛИ ДЛЯ ИГРЫ "ЛАБИРИНТ ТАРО" ========== */
+
+.maze-game-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.maze-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.maze-header h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.maze-header p {
+    color: #94a3b8;
+    font-size: 1.1rem;
+}
+
+/* Информация об уровне */
+.level-info {
+    background: linear-gradient(135deg, #4ade8020, #4ade8040);
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.level-name {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.level-stats {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    color: #e2e8f0;
+}
+
+.stat i {
+    font-size: 1.2rem;
+    color: #94a3b8;
+}
+
+/* Игровое поле */
+.maze-wrapper {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.maze-grid {
+    display: grid;
+    grid-gap: 2px;
+    background: #0f172a;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #374151;
+}
+
+.maze-cell {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.maze-cell.wall {
+    background: #374151;
+    color: #9ca3af;
+}
+
+.maze-cell.path {
+    background: #1f2937;
+    color: #d1d5db;
+}
+
+.maze-cell.player {
+    background: #ff6b6b !important;
+    color: white !important;
+    transform: scale(1.1);
+    z-index: 2;
+    box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+}
+
+.maze-cell.exit {
+    background: #4ade80 !important;
+    color: white !important;
+    animation: pulse 2s infinite;
+}
+
+.maze-cell.star {
+    background: #fbbf24 !important;
+    color: white !important;
+    animation: starGlow 1.5s infinite;
+}
+
+.maze-cell.star-collected {
+    background: #1f2937 !important;
+    color: #fbbf24 !important;
+}
+
+/* Анимации */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes starGlow {
+    0%, 100% { box-shadow: 0 0 5px #fbbf24; }
+    50% { box-shadow: 0 0 15px #fbbf24; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.move-animation {
+    animation: move 0.2s ease;
+}
+
+@keyframes move {
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+.star-collect-animation {
+    animation: collect 0.5s ease;
+}
+
+@keyframes collect {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.hint-path {
+    animation: hint 0.5s ease;
+    background: rgba(96, 165, 250, 0.5) !important;
+}
+
+@keyframes hint {
+    0%, 100% { background: rgba(96, 165, 250, 0.5); }
+    50% { background: rgba(96, 165, 250, 0.8); }
+}
+
+/* Управление */
+.controls-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.controls-title {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Виртуальный джойстик */
+.joystick {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.joystick-row {
+    display: flex;
+    gap: 60px;
+    align-items: center;
+}
+
+.control-btn {
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+}
+
+.control-btn:hover, .control-btn:active {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.control-btn:active {
+    transform: translateY(1px);
+}
+
+.up-btn { background: linear-gradient(135deg, #10b981, #059669); }
+.down-btn { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.left-btn { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.right-btn { background: linear-gradient(135deg, #ec4899, #db2777); }
+
+.joystick-center {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 1.8rem;
+}
+
+/* Быстрые кнопки */
+.quick-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.quick-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    font-weight: 600;
+}
+
+.hint-btn {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: white;
+}
+
+.restart-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.quick-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Инструкция */
+.instructions {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.instructions p {
+    color: #94a3b8;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.instructions ul {
+    margin-left: 20px;
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+
+.instructions li {
+    margin-bottom: 8px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .maze-game-container {
+        padding: 15px;
+        margin: 10px;
+    }
+    
+    .maze-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .maze-cell {
+        width: 30px;
+        height: 30px;
+        font-size: 1.3rem;
+    }
+    
+    .control-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.3rem;
+    }
+    
+    .joystick-row {
+        gap: 40px;
+    }
+    
+    .joystick-center {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .quick-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .quick-btn {
+        width: 100%;
+        max-width: 250px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .maze-cell {
+        width: 25px;
+        height: 25px;
+        font-size: 1.1rem;
+    }
+    
+    .control-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.1rem;
+    }
+    
+    .joystick-row {
+        gap: 30px;
+    }
+    
+    .level-stats {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+}
