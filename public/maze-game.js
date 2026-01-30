@@ -280,12 +280,28 @@ function generateMaze(size) {
     }
     
     // Устанавливаем выход
-    const exitX = size - 2;
-    const exitY = size - 2;
-    maze[exitY][exitX] = 0;
-    gameState.exit = { x: exitX, y: exitY };
+    let exitX, exitY;
+    for (let y = size - 2; y >= 1; y--) {
+        for (let x = size - 2; x >= 1; x--) {
+            if (maze[y][x] === 0) {
+                exitX = x;
+                exitY = y;
+                y = 0; // Выход из внешнего цикла
+                break;
+            }
+        }
+    }
     
-    // Расставляем звёзды
+    // Гарантируем, что выход найден
+    if (!exitX || !exitY) {
+        exitX = size - 2;
+        exitY = size - 2;
+        maze[exitY][exitX] = 0;
+    }
+    
+    gameState.exit = { x: exitX, y: exitY };
+        
+        // Расставляем звёзды
     gameState.stars = [];
     const level = MAZE_CONFIG.levels[gameState.currentLevel];
     
