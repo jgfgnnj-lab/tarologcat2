@@ -57,6 +57,29 @@ function showMemoryGameMode() {
         console.error('Функция startMemoryGame не найдена. Проверьте memory-game.js');
     }
 }
+// Функция для показа игры в лабиринт
+function showMazeMode() {
+    currentMode = 'maze';
+    // Скрываем всё остальное
+    if (landingPage) landingPage.classList.add('hidden');
+    if (tarotInterface) tarotInterface.classList.add('hidden');
+    if (memoryGame) memoryGame.classList.add('hidden');
+    // Показываем игру
+    const mazeGame = document.getElementById('maze-game');
+    if (mazeGame) {
+        mazeGame.classList.remove('hidden');
+    } else {
+        console.error('Контейнер maze-game не найден');
+    }
+    // Показываем кнопку "Назад"
+    if (backButton) backButton.classList.remove('hidden');
+    // Запускаем игру
+    if (typeof startMazeGame === 'function') {
+        startMazeGame();
+    } else {
+        console.error('Функция startMazeGame не найдена');
+    }
+}
 
 // ========== КОНЕЦ ФУНКЦИЙ ДЛЯ МЕНЮ ==========
 
