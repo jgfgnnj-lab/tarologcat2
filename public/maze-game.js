@@ -404,27 +404,49 @@
         const level = MAZE_CONFIG.levels[gameState.currentLevel];
         const size = level.size;
         
-        // Динамический размер клетки
-        const cellSize = MAZE_CONFIG.getCellSize();
+        // Определяем оптимальный размер клетки
+        let cellSize = calculateOptimalCellSize(size);
         
+        // Проверяем, нужно ли включать скролл
+        const mazeWrapper = document.querySelector('.maze-wrapper');
+        const maxVisibleWidth = window.innerWidth * 0.85; // 85% ширины экрана
+        const mazeWidth = size * cellSize + 20; // +20px для padding
+        
+        if (mazeWidth > maxVisibleWidth && size > 10) {
+            // Для больших лабиринтов включаем горизонтальный скролл
+            mazeWrapper.classList.add('scrollable-maze');
+            mazeWrapper.style.justifyContent = 'flex-start';
+            console.log('Включен горизонтальный скролл для лабиринта');
+        } else {
+            mazeWrapper.classList.remove('scrollable-maze');
+            mazeWrapper.style.justifyContent = 'center';
+        }
+        
+        // Очищаем и настраиваем сетку
         mazeGrid.innerHTML = '';
         mazeGrid.style.gridTemplateColumns = `repeat(${size}, ${cellSize}px)`;
         mazeGrid.style.gridTemplateRows = `repeat(${size}, ${cellSize}px)`;
         
-        // Добавляем класс для больших лабиринтов
-        if (size > 12) {
-            mazeGrid.classList.add('large-maze');
-        } else {
-            mazeGrid.classList.remove('large-maze');
-        }
+        // Устанавливаем размеры
+        mazeGrid.style.width = `${size * cellSize}px`;
+        mazeGrid.style.height = `${size * cellSize}px`;
         
+        // Устанавливаем размер шрифта
+        let fontSizeClass = 'maze-size-md';
+        if (cellSize <= 20) fontSizeClass = 'maze-size-xs';
+        else if (cellSize <= 25) fontSizeClass = 'maze-size-sm';
+        else if (cellSize <= 30) fontSizeClass = 'maze-size-md';
+        else fontSizeClass = 'maze-size-lg';
+        
+        mazeGrid.className = `maze-grid ${fontSizeClass}`;
+        
+        // Создаем клетки лабиринта
         for (let y = 0; y < size; y++) {
             for (let x = 0; x < size; x++) {
                 const cell = document.createElement('div');
                 cell.className = 'maze-cell';
                 cell.style.width = `${cellSize}px`;
                 cell.style.height = `${cellSize}px`;
-                cell.style.fontSize = cellSize <= 28 ? '1.2rem' : '1.5rem';
                 
                 // Стена
                 if (gameState.maze[y][x] === 1) {
@@ -464,8 +486,52 @@
             }
         }
         
-        console.log('Лабиринт отрисован, размер клеток:', cellSize);
+        console.log('Лабиринт отрисован', {
+            level: level.id,
+            size: size,
+            cellSize: cellSize,
+            totalWidth: size * cellSize,
+            windowWidth: window.innerWidth,
+            needsScroll: mazeWrapper.classList.contains('scrollable-maze')
+        });
     }
+
+// Новая функция для расчета оптимального размера клетки
+function calculateOptimalCellSize(mazeSize) {
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    
+    // Определяем максимально доступную область для лабиринта
+    const availableWidth = screenWidth * 0.85; // 85% ширины экрана
+    const availableHeight = screenHeight * 0.45; // 45% высоты экрана (оставляем место для UI)
+    
+    // Рассчитываем максимальный размер клетки
+    const maxCellWidth = Math.floor(availableWidth / mazeSize);
+    const maxCellHeight = Math.floor(availableHeight / mazeSize);
+    
+    // Берем меньший размер для гарантии
+    let cellSize = Math.min(maxCellWidth, maxCellHeight);
+    
+    // Ограничения по размеру
+    cellSize = Math.max(18, cellSize); // Минимальный размер
+    cellSize = Math.min(35, cellSize); // Максимальный размер
+    
+    // Округляем до целого числа
+    cellSize = Math.floor(cellSize);
+    
+    console.log('Рассчитанный размер клетки:', {
+        mazeSize,
+        screenWidth,
+        screenHeight,
+        availableWidth,
+        availableHeight,
+        maxCellWidth,
+        maxCellHeight,
+        finalCellSize: cellSize
+    });
+    
+    return cellSize;
+}
 
     // Движение игрока
     function movePlayer(direction) {
