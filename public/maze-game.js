@@ -396,14 +396,27 @@
         const level = MAZE_CONFIG.levels[gameState.currentLevel];
         const size = level.size;
         
+        // Динамический размер клетки
+        const cellSize = MAZE_CONFIG.getCellSize();
+        
         mazeGrid.innerHTML = '';
-        mazeGrid.style.gridTemplateColumns = `repeat(${size}, ${MAZE_CONFIG.cellSize}px)`;
-        mazeGrid.style.gridTemplateRows = `repeat(${size}, ${MAZE_CONFIG.cellSize}px)`;
+        mazeGrid.style.gridTemplateColumns = `repeat(${size}, ${cellSize}px)`;
+        mazeGrid.style.gridTemplateRows = `repeat(${size}, ${cellSize}px)`;
+        
+        // Добавляем класс для больших лабиринтов
+        if (size > 12) {
+            mazeGrid.classList.add('large-maze');
+        } else {
+            mazeGrid.classList.remove('large-maze');
+        }
         
         for (let y = 0; y < size; y++) {
             for (let x = 0; x < size; x++) {
                 const cell = document.createElement('div');
                 cell.className = 'maze-cell';
+                cell.style.width = `${cellSize}px`;
+                cell.style.height = `${cellSize}px`;
+                cell.style.fontSize = cellSize <= 28 ? '1.2rem' : '1.5rem';
                 
                 // Стена
                 if (gameState.maze[y][x] === 1) {
@@ -443,7 +456,7 @@
             }
         }
         
-        console.log('Лабиринт отрисован');
+        console.log('Лабиринт отрисован, размер клеток:', cellSize);
     }
 
     // Движение игрока
