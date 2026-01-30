@@ -164,6 +164,7 @@
         // Настраиваем обработчики
         setupFifteenControls();
         setupTouchControls();
+        setupPointerControls();
         
         console.log('UI пятнашек инициализирован');
     }
@@ -269,11 +270,45 @@
     function handleTileClick(e) {
         if (!gameState.isPlaying || gameState.isCompleted) return;
         
-        const tile = e.target.closest('.puzzle-tile');
-        if (tile) {
-            const index = parseInt(tile.dataset.index);
-            moveTile(index);
+        // На мобильных устройствах event.target может быть дочерним элементом
+        let target = e.target;
+        
+        // Ищем ближайший элемент .puzzle-tile
+        while (target && target !== puzzleGrid) {
+            if (target.classList && target.classList.contains('puzzle-tile')) {
+                const index = parseInt(target.dataset.index);
+                if (!isNaN(index)) {
+                    moveTile(index);
+                    return;
+                }
+            }
+            target = target.parentNode;
         }
+    }
+
+    function setupPointerControls() {
+        puzzleGrid.addEventListener('pointerdown', (e) => {
+            if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+                e.preventDefault();
+            }
+        });
+        
+        puzzleGrid.addEventListener('pointerup', (e) => {
+            if (e.pointerType === 'mouse') {
+                // Для мыши используем стандартный клик
+                return;
+            }
+            
+            // Для тач-устройств
+            const element = document.elementFromPoint(e.clientX, e.clientY);
+            if (element) {
+                const tile = element.closest('.puzzle-tile');
+                if (tile && tile.dataset.index !== undefined) {
+                    const index = parseInt(tile.dataset.index);
+                    moveTile(index);
+                }
+            }
+        });
     }
     
     // Загрузка уровня
