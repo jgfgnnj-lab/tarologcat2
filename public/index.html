@@ -315,7 +315,7 @@
             }
         };
         
-        // Функция показа игры в лабиринт
+       // Функция показа игры в лабиринт
         window.showMazeMode = function() {
             console.log('showMazeMode вызвана');
             
@@ -342,15 +342,59 @@
                 backButton.style.display = 'block';
             }
             
-            if (typeof window.startMazeGame === 'function') {
-                console.log('startMazeGame найдена, запускаем...');
+            // Динамически загружаем maze-game.js если еще не загружен
+            if (typeof window.startMazeGame !== 'function') {
+                console.log('Загружаем maze-game.js...');
+                loadMazeGameScript();
+            } else {
+                console.log('maze-game.js уже загружен, запускаем игру...');
                 setTimeout(() => {
                     window.startMazeGame();
                 }, 100);
-            } else {
-                console.error('startMazeGame не найдена');
             }
         };
+
+        // Функция для динамической загрузки maze-game.js
+        function loadMazeGameScript() {
+            const script = document.createElement('script');
+            script.src = 'maze-game.js';
+            script.onload = function() {
+                console.log('maze-game.js загружен успешно');
+                if (typeof window.startMazeGame === 'function') {
+                    console.log('startMazeGame найдена, запускаем...');
+                    setTimeout(() => {
+                        window.startMazeGame();
+                    }, 100);
+                } else {
+                    console.error('startMazeGame не найдена после загрузки скрипта');
+                }
+            };
+            script.onerror = function() {
+                console.error('Ошибка загрузки maze-game.js');
+                // Покажем сообщение об ошибке
+                const mazeGame = document.getElementById('maze-game');
+                if (mazeGame) {
+                    mazeGame.innerHTML = `
+                        <div style="text-align: center; padding: 50px; color: white;">
+                            <h2>Ошибка загрузки игры</h2>
+                            <p>Не удалось загрузить игру в лабиринт.</p>
+                            <button onclick="location.reload()" style="
+                                padding: 10px 20px;
+                                background: #6a11cb;
+                                color: white;
+                                border: none;
+                                border-radius: 8px;
+                                cursor: pointer;
+                                margin-top: 20px;
+                            ">
+                                <i class="fas fa-redo"></i> Попробовать снова
+                            </button>
+                        </div>
+                    `;
+                }
+            };
+            document.head.appendChild(script);
+        }
         
         // Инициализация при загрузке страницы
         document.addEventListener('DOMContentLoaded', function() {
@@ -362,6 +406,5 @@
     <!-- Подключаем основные скрипты -->
     <script src="app.js"></script>
     <script src="memory-game.js"></script>
-    <script src="maze-game.js"></script>
 </body>
 </html>
