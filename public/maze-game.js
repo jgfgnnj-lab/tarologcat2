@@ -133,7 +133,7 @@ function initMazeUI() {
         </div>
     `;
 
-    document.getElementById('memory-game').innerHTML = gameHTML;
+    document.getElementById('maze-game').innerHTML = gameHTML;
 
     // Получаем элементы
     gameContainer = document.querySelector('.maze-game-container');
