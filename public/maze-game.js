@@ -1,4 +1,68 @@
 // ========== ИГРА "ЛАБИРИНТ ТАРО" ==========
+const tg = window.Telegram?.WebApp;
+
+// Если запущено в Telegram, расширяем на весь экран
+if (tg) {
+    tg.expand();
+    tg.ready();
+}
+
+// Глобальные переменные
+let gameInitialized = false;
+let mazeContainer;
+
+// Основная функция запуска игры
+function initTelegramMazeGame() {
+    console.log('Инициализация игры для Telegram Web App');
+    
+    // Создаем контейнер если его нет
+    mazeContainer = document.getElementById('maze-game');
+    if (!mazeContainer) {
+        console.error('Контейнер maze-game не найден!');
+        return;
+    }
+    
+    // Запускаем игру
+    startMazeGame();
+    gameInitialized = true;
+}
+
+// Автозапуск при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Страница загружена, запускаем игру...');
+    
+    // Небольшая задержка для гарантированной загрузки DOM
+    setTimeout(() => {
+        if (typeof startMazeGame === 'function') {
+            initTelegramMazeGame();
+        } else {
+            console.error('Функция startMazeGame не найдена!');
+            // Покажем сообщение об ошибке
+            const container = document.getElementById('maze-game');
+            if (container) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: white;">
+                        <h2>Ошибка загрузки игры</h2>
+                        <p>Пожалуйста, обновите страницу или обратитесь к администратору.</p>
+                        <button onclick="location.reload()" style="
+                            padding: 10px 20px;
+                            background: #6a11cb;
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            margin-top: 20px;
+                        ">
+                            <i class="fas fa-redo"></i> Обновить игру
+                        </button>
+                    </div>
+                `;
+            }
+        }
+    }, 100);
+});
+
+
 
 // Конфигурация игры
 const MAZE_CONFIG = {
@@ -703,3 +767,5 @@ if (typeof window !== 'undefined') {
         }, 1000);
     }
 })();
+
+window.initTelegramMazeGame = initTelegramMazeGame;
