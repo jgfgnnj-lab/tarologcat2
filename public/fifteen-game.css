@@ -1,0 +1,421 @@
+/* ========== СТИЛИ ДЛЯ ИГРЫ "ПЯТНАШКИ ТАРО" ========== */
+
+.fifteen-game-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.fifteen-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.fifteen-header h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, #6a11cb, #2575fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.fifteen-header p {
+    color: #94a3b8;
+    font-size: 1.1rem;
+}
+
+/* Информация об уровне */
+.level-info {
+    background: linear-gradient(135deg, #4ade8020, #4ade8040);
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.level-name {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.level-stats {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    color: #e2e8f0;
+}
+
+.stat i {
+    font-size: 1.2rem;
+    color: #94a3b8;
+}
+
+/* Игровое поле */
+.puzzle-wrapper {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 300px;
+}
+
+.puzzle-grid {
+    display: grid;
+    gap: 4px;
+    background: #0f172a;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #374151;
+    margin: 0 auto;
+}
+
+.puzzle-tile {
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+    overflow: hidden;
+}
+
+.puzzle-tile:not(.empty):hover {
+    transform: scale(1.05);
+    z-index: 2;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.puzzle-tile.empty {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-cell {
+    text-align: center;
+    color: #94a3b8;
+}
+
+.empty-cell i {
+    font-size: 2rem;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.tile-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 6px;
+    border: 2px solid;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.tile-number {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.tile-emoji {
+    font-size: 1.8rem;
+    margin-bottom: 5px;
+}
+
+.tile-name {
+    font-size: 0.8rem;
+    text-align: center;
+    color: white;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.correct-indicator {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    color: #4ade80;
+    font-size: 0.8rem;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes slide {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(var(--tx), var(--ty)); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease;
+}
+
+.moving {
+    animation: pulse 0.3s ease;
+}
+
+.puzzle-tile.correct .tile-content {
+    animation: pulse 1s ease infinite;
+}
+
+.puzzle-tile.hint {
+    animation: pulse 0.5s ease infinite;
+    box-shadow: 0 0 20px gold;
+}
+
+/* Управление */
+.controls-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.controls-title {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Выбор уровней */
+.levels-selector {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.level-btn {
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    opacity: 0.7;
+}
+
+.level-btn:hover {
+    transform: translateY(-3px);
+    opacity: 0.9;
+}
+
+.level-btn.active {
+    opacity: 1;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.level-btn small {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    display: block;
+    margin-top: 5px;
+}
+
+/* Кнопки действий */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    color: white;
+}
+
+.shuffle-btn {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.hint-btn {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
+.restart-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Инструкция */
+.instructions {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.instructions p {
+    color: #94a3b8;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.instructions ul {
+    margin-left: 20px;
+    color: #cbd5e1;
+    line-height: 1.6;
+}
+
+.instructions li {
+    margin-bottom: 8px;
+}
+
+/* Уведомления */
+.game-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: rgba(30, 41, 59, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px 25px;
+    color: white;
+    z-index: 10000;
+    backdrop-filter: blur(10px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.game-notification.show {
+    transform: translateX(-50%) translateY(0);
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+}
+
+.notification-content i {
+    color: #fbbf24;
+    font-size: 1.2rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .fifteen-game-container {
+        padding: 15px;
+        margin: 10px;
+    }
+    
+    .fifteen-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .puzzle-wrapper {
+        padding: 15px;
+    }
+    
+    .tile-emoji {
+        font-size: 1.4rem;
+    }
+    
+    .tile-name {
+        font-size: 0.7rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .action-btn {
+        width: 100%;
+        max-width: 250px;
+        justify-content: center;
+    }
+    
+    .levels-selector {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .level-stats {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .puzzle-wrapper {
+        padding: 10px;
+    }
+    
+    .tile-emoji {
+        font-size: 1.2rem;
+    }
+    
+    .tile-name {
+        font-size: 0.6rem;
+    }
+    
+    .level-btn {
+        padding: 10px;
+        font-size: 0.8rem;
+    }
+}
