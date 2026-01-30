@@ -33,8 +33,8 @@
     
     // Уровни сложности
     const LEVELS = [
-        { id: 1, size: 3, name: "Начинающий", moves: 20, time: 120, color: "#4ade80" },
-        { id: 2, size: 4, name: "Обычный", moves: 50, time: 180, color: "#60a5fa" },
+        { id: 1, size: 3, name: "Начинающий", moves: 200, time: 300, color: "#4ade80" },
+        { id: 2, size: 4, name: "Обычный", moves: 500, time: 600, color: "#60a5fa" },
     ];
     
     // Состояние игры
