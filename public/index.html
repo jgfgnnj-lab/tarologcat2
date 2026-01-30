@@ -247,6 +247,17 @@
     <!-- Сначала ваш основной скрипт, затем скрипт игры -->
     <script src="app.js"></script>
     <script src="memory-game.js"></script>
+    <!-- Убедимся что maze-game.js загружается после DOM -->
     <script src="maze-game.js"></script>
+    <script>
+        // Инициализируем после загрузки
+        document.addEventListener('DOMContentLoaded', function() {
+            // Проверяем доступность функций
+            console.log('DOM загружен, функции доступны:', {
+                startMazeGame: typeof startMazeGame,
+                showMazeMode: typeof showMazeMode
+            });
+        });
+    </script>
 </body>
 </html>
