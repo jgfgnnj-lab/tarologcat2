@@ -42,8 +42,28 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Инициализация Telegram Web App
-    
-    tg.expand();
+    let tg = null;
+    try {
+        if (window.Telegram && window.Telegram.WebApp) {
+            tg = window.Telegram.WebApp;
+            tg.expand();
+        } else {
+            // Режим разработки/браузера
+            console.log('Режим разработки - Telegram WebApp не найден');
+            tg = {
+                initDataUnsafe: {
+                    user: { id: 123456789, first_name: "Тест", last_name: "Пользователь" }
+                },
+                showPopup: function(params) { alert(params.message); }
+            };
+        }
+    } catch (error) {
+        console.log('Ошибка инициализации Telegram:', error);
+        tg = {
+            initDataUnsafe: { user: { id: 0 } },
+            showPopup: function(params) { alert(params.message); }
+        };
+    }
 
     // Состояние приложения
     let state = {
