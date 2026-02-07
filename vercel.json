@@ -1,25 +1,11 @@
 {
-  "builds": [
-    { "src": "api/index.py", "use": "@vercel/python" },
-    { "src": "*.js", "use": "@vercel/static" },
-    { "src": "*.html", "use": "@vercel/static" },
-    { "src": "*.css", "use": "@vercel/static" }
-  ],
+  "functions": {
+    "api/index.py": {
+      "runtime": "python@3.9"
+    }
+  },
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/index.py" },
-    { 
-      "src": "/(.*)", 
-      "dest": "/index.html",
-      "headers": {
-        "Cache-Control": "public, max-age=0, must-revalidate"
-      }
-    }
-  ],
-  "rewrites": [
-    { "source": "/", "destination": "/index.html" },
-    { "source": "/tarot", "destination": "/index.html" },
-    { "source": "/memory", "destination": "/index.html" },
-    { "source": "/maze", "destination": "/index.html" },
-    { "source": "/fifteen", "destination": "/index.html" }
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
