@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Инициализация Telegram Web App
-    const tg = window.Telegram.WebApp;
+    
     tg.expand();
 
     // Состояние приложения
