@@ -273,10 +273,6 @@
         // Глобальный объект для избежания конфликтов с React
         window.TarotApp = {};
         
-        // Глобальные переменные для управления режимами
-        let currentMode = 'landing';
-        let landingPage, tarotInterface, memoryGame, backButton;
-        
         // Функция показа главной страницы
         window.showLandingPage = function() {
             console.log('showLandingPage вызвана');
@@ -291,6 +287,8 @@
             if (tarotInterface) tarotInterface.classList.add('hidden');
             if (memoryGame) memoryGame.classList.add('hidden');
             if (backButton) backButton.classList.add('hidden');
+            const mazeGame = document.getElementById('maze-game');
+            if (mazeGame) mazeGame.classList.add('hidden');
         };
         
         // Функция показа режима гадания
@@ -307,6 +305,8 @@
             if (tarotInterface) tarotInterface.classList.remove('hidden');
             if (memoryGame) memoryGame.classList.add('hidden');
             if (backButton) backButton.classList.remove('hidden');
+            const mazeGame = document.getElementById('maze-game');
+            if (mazeGame) mazeGame.classList.add('hidden');
         };
         
         // Функция показа игры на память
@@ -323,6 +323,8 @@
             if (tarotInterface) tarotInterface.classList.add('hidden');
             if (memoryGame) memoryGame.classList.remove('hidden');
             if (backButton) backButton.classList.remove('hidden');
+            const mazeGame = document.getElementById('maze-game');
+            if (mazeGame) mazeGame.classList.add('hidden');
             
             if (typeof window.startMemoryGame === 'function') {
                 window.startMemoryGame();
