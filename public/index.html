@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="memory-game.css">
     <link rel="stylesheet" href="maze-game.css">
     <link rel="stylesheet" href="fifteen-game.css">
+    <link rel="stylesheet" href="snake-game.css">
     
     <style>
         /* Стили для главного меню и кнопки "Назад" */
@@ -90,6 +91,10 @@
             background: linear-gradient(135deg, #4361ee, #3a0ca3);
             color: white;
         }
+        .snake-game-button {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+        }
         
         /* Гарантируем что наши контейнеры видны */
         #tarot-interface,
@@ -127,6 +132,10 @@
             <button class="mode-button fifteen-button" onclick="window.showFifteenMode()">
                 <span>🐱</span>
                 <span>Котняшки Таро</span>
+            </button>
+            <button class="mode-button snake-game-button" onclick="window.showSnakeMode()">
+                <span>🐍</span>
+                <span>Змейка</span>
             </button>
         </div>
     </div>
@@ -268,6 +277,11 @@
         <!-- Игра загрузится сюда через fifteen-game.js -->
     </div>
 
+    <!-- Контейнер для игры Змейка -->
+    <div id="snake-game" class="hidden">
+        <!-- Игра загрузится сюда через snake-game.js -->
+    </div>
+    
     <!-- Подключаем скрипты с правильным порядком -->
     <script>
         // Глобальный объект для избежания конфликтов с React
@@ -501,7 +515,85 @@
             
             document.head.appendChild(script);
         }
+        // Функция показа игры Змейка
+        window.showSnakeMode = function() {
+            console.log('showSnakeMode вызвана');
+            
+            currentMode = 'snake';
+            landingPage = document.getElementById('landing-page');
+            tarotInterface = document.getElementById('tarot-interface');
+            memoryGame = document.getElementById('memory-game');
+            mazeGame = document.getElementById('maze-game');
+            fifteenGame = document.getElementById('fifteen-game');
+            backButton = document.getElementById('back-button');
+            
+            if (landingPage) landingPage.classList.add('hidden');
+            if (tarotInterface) tarotInterface.classList.add('hidden');
+            if (memoryGame) memoryGame.classList.add('hidden');
+            if (mazeGame) mazeGame.classList.add('hidden');
+            if (fifteenGame) fifteenGame.classList.add('hidden');
+            
+            const snakeGame = document.getElementById('snake-game');
+            if (snakeGame) {
+                snakeGame.classList.remove('hidden');
+                snakeGame.style.display = 'block';
+                snakeGame.style.visibility = 'visible';
+                snakeGame.style.opacity = '1';
+            }
+            
+            if (backButton) {
+                backButton.classList.remove('hidden');
+                backButton.style.display = 'block';
+            }
+            
+            // Динамически загружаем snake-game.js если еще не загружен
+            if (typeof window.startSnakeGame !== 'function') {
+                console.log('Загружаем snake-game.js...');
+                loadSnakeGameScript();
+            } else {
+                console.log('snake-game.js уже загружен, запускаем игру...');
+                setTimeout(() => {
+                    window.startSnakeGame();
+                }, 100);
+            }
+        };
         
+        // Функция для динамической загрузки snake-game.js
+        function loadSnakeGameScript() {
+            console.log('Загружаем snake-game.js...');
+            
+            // Проверяем, не загружен ли уже скрипт
+            const existingScript = document.getElementById('snake-game-script');
+            if (existingScript) {
+                console.log('Скрипт уже загружен, удаляем старый...');
+                existingScript.remove();
+            }
+            
+            // Сбрасываем флаги
+            if (window.snakeGameInitialized) {
+                window.snakeGameInitialized = false;
+            }
+            
+            const script = document.createElement('script');
+            script.src = 'snake-game.js';
+            script.id = 'snake-game-script';
+            
+            script.onload = function() {
+                console.log('✅ snake-game.js загружен успешно');
+                if (typeof startSnakeGame === 'function') {
+                    setTimeout(() => {
+                        startSnakeGame();
+                    }, 100);
+                }
+            };
+            
+            script.onerror = function() {
+                console.error('❌ Ошибка загрузки snake-game.js');
+                alert('Не удалось загрузить игру Змейка');
+            };
+            
+            document.head.appendChild(script);
+        }
        
     </script>
     
@@ -509,5 +601,6 @@
     <script src="app.js"></script>
     <script src="memory-game.js"></script>
     <script src="fifteen-game.js"></script>
+    <script src="snake-game.js"></script>
 </body>
 </html>
