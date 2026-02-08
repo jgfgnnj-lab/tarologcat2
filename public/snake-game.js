@@ -26,7 +26,7 @@ function startSnakeGame() {
     const gameHTML = `
         <div class="snake-container">
             <div class="snake-header">
-                <h1>🐍 Змейка Таро</h1>
+                <h1>🐍 Змейка</h1>
                 <p>Собери как можно больше звёзд!</p>
             </div>
             
