@@ -130,7 +130,7 @@ class SnakeGame {
         this.nextDirection = 'right';
         this.score = 0;
         this.highScore = localStorage.getItem('snakeHighScore') || 0;
-        this.gameSpeed = 120; // мс на ход
+        this.gameSpeed = 240; // мс на ход
         this.isPaused = true;
         this.gameOver = false;
         this.gameLoop = null;
