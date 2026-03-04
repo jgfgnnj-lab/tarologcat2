@@ -662,10 +662,17 @@
 
     // Показ завершения всех уровней
     function showAllLevelsComplete() {
+        sendMazeResult()
         alert(`🏆 ПОБЕДА! 🏆\n\nВы прошли все 5 уровней лабиринта!\n\nВаш кот-таролог 🐱 гордится вами!`);
-        loadLevel(0); // Возвращаемся к первому уровню
+        loadLevel(0); // Возвращаемся к первому уровню        
     }
-
+    async function sendMazeResult() {
+        const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        if (!userId) return;
+        
+        await window.CryptoUtils.sendResult(userId, 'maze', 5, true);
+    }
+    
     // Показ истечения времени
     function showTimeUp() {
         alert(`⏰ Время вышло!\n\nУровень: ${gameState.currentLevel + 1}\nСобрано звёзд: ${gameState.collectedStars}\n\nПопробуйте снова!`);
