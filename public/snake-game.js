@@ -539,12 +539,21 @@ class SnakeGame {
         this.sendSnakeResult();
     }
     
-    // А ЭТУ ФУНКЦИЮ добавьте после endGame, но внутри класса SnakeGame
     async sendSnakeResult() {
         const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
         if (!userId) return;
         
-        await window.CryptoUtils.sendResult(userId, 'snake', this.score, false);
+        try {
+            const result = await window.CryptoUtils.sendResult(
+                userId, 
+                'snake', 
+                this.score,  // отправляем очки
+                false        // не требуется полное прохождение
+            );
+            console.log('Snake result sent:', result);
+        } catch (e) {
+            console.error('Error sending snake result:', e);
+        }
     }
     
     changeDirection(newDirection) {
