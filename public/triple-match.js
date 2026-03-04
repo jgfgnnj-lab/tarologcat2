@@ -202,7 +202,7 @@ class TripleMatchGame {
         
         if (matches.length === 0) return 0;
         
-        // Считаем очки (больше за длинные цепочки)
+        // Считаем очки
         const matchCount = matches.length;
         if (matchCount >= 6) {
             this.chainCount++;
@@ -211,6 +211,17 @@ class TripleMatchGame {
             this.chainCount = 1;
             this.score += matchCount * 10;
         }
+        
+        // Анимируем совпадения
+        matches.forEach(match => {
+            const cell = document.querySelector(`[data-row="${match.row}"][data-col="${match.col}"]`);
+            if (cell) {
+                cell.style.animation = 'match 0.3s ease';
+                setTimeout(() => {
+                    cell.style.animation = '';
+                }, 300);
+            }
+        });
         
         // Удаляем совпадения
         matches.forEach(match => {
@@ -221,12 +232,16 @@ class TripleMatchGame {
     }
     
     fillBoard() {
+        // Сохраняем текущее состояние DOM
+        const boardElement = document.getElementById('triple-board');
+        const cells = boardElement?.children;
+        
         for (let c = 0; c < this.cols; c++) {
             for (let r = this.rows - 1; r >= 0; r--) {
-                if (this.board[r][c] === null) {
+                if (this.board[r][c] === null || this.board[r][c] === undefined) {
                     // Сдвигаем элементы вниз
                     for (let r2 = r - 1; r2 >= 0; r2--) {
-                        if (this.board[r2][c] !== null) {
+                        if (this.board[r2][c] !== null && this.board[r2][c] !== undefined) {
                             this.board[r][c] = this.board[r2][c];
                             this.board[r2][c] = null;
                             break;
@@ -234,7 +249,7 @@ class TripleMatchGame {
                     }
                     
                     // Если после сдвига все еще null, создаем новый
-                    if (this.board[r][c] === null) {
+                    if (this.board[r][c] === null || this.board[r][c] === undefined) {
                         this.board[r][c] = Math.floor(Math.random() * this.cellTypes.length);
                     }
                 }
@@ -273,9 +288,13 @@ class TripleMatchGame {
         do {
             matchesFound = this.removeMatches();
             if (matchesFound > 0) {
-                this.render();
+                // НЕ перерисовываем здесь, removeMatches уже обновил классы
                 await this.sleep(400);
+                
+                // Заполняем пустоты
                 this.fillBoard();
+                
+                // Теперь перерисовываем
                 this.render();
                 await this.sleep(200);
             }
