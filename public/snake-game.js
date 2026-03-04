@@ -536,6 +536,15 @@ class SnakeGame {
         }
         
         gameOverScreen.classList.add('show');
+        this.sendSnakeResult();
+    }
+    
+    // А ЭТУ ФУНКЦИЮ добавьте после endGame, но внутри класса SnakeGame
+    async sendSnakeResult() {
+        const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        if (!userId) return;
+        
+        await window.CryptoUtils.sendResult(userId, 'snake', this.score, false);
     }
     
     changeDirection(newDirection) {
