@@ -670,7 +670,17 @@
         const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
         if (!userId) return;
         
-        await window.CryptoUtils.sendResult(userId, 'maze', 5, true);
+        try {
+            const result = await window.CryptoUtils.sendResult(
+                userId, 
+                'maze', 
+                5,      // 5 уровней
+                true    // все уровни пройдены
+            );
+            console.log('Maze result sent:', result);
+        } catch (e) {
+            console.error('Error sending maze result:', e);
+        }
     }
     
     // Показ истечения времени
