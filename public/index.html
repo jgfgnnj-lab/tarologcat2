@@ -298,6 +298,9 @@
     
     <!-- Подключаем скрипты с правильным порядком -->
     <script>
+        // Глобальные переменные для игр
+        let currentMode = 'landing';
+        let landingPage, tarotInterface, memoryGame, mazeGame, fifteenGame, snakeGame, tripleGame, backButton;
         // Глобальный объект для избежания конфликтов с React
         window.TarotApp = {};
         
@@ -309,16 +312,20 @@
             landingPage = document.getElementById('landing-page');
             tarotInterface = document.getElementById('tarot-interface');
             memoryGame = document.getElementById('memory-game');
+            mazeGame = document.getElementById('maze-game');
+            fifteenGame = document.getElementById('fifteen-game');
+            snakeGame = document.getElementById('snake-game');
+            tripleGame = document.getElementById('triple-match-game');
             backButton = document.getElementById('back-button');
             
             if (landingPage) landingPage.classList.remove('hidden');
             if (tarotInterface) tarotInterface.classList.add('hidden');
             if (memoryGame) memoryGame.classList.add('hidden');
-            if (backButton) backButton.classList.add('hidden');
-            const mazeGame = document.getElementById('maze-game');
             if (mazeGame) mazeGame.classList.add('hidden');
+            if (fifteenGame) fifteenGame.classList.add('hidden');
             if (snakeGame) snakeGame.classList.add('hidden');
             if (tripleGame) tripleGame.classList.add('hidden');
+            if (backButton) backButton.classList.add('hidden');
         };
         
         // Функция показа режима гадания
@@ -551,6 +558,8 @@
             memoryGame = document.getElementById('memory-game');
             mazeGame = document.getElementById('maze-game');
             fifteenGame = document.getElementById('fifteen-game');
+            snakeGame = document.getElementById('snake-game');
+            tripleGame = document.getElementById('triple-match-game'); 
             backButton = document.getElementById('back-button');
             
             if (landingPage) landingPage.classList.add('hidden');
@@ -558,9 +567,8 @@
             if (memoryGame) memoryGame.classList.add('hidden');
             if (mazeGame) mazeGame.classList.add('hidden');
             if (fifteenGame) fifteenGame.classList.add('hidden');
-            if (tripleGame) tripleGame.classList.add('hidden');
+            if (tripleGame) tripleGame.classList.add('hidden'); 
             
-            const snakeGame = document.getElementById('snake-game');
             if (snakeGame) {
                 snakeGame.classList.remove('hidden');
                 snakeGame.style.display = 'block';
@@ -633,9 +641,10 @@
             mazeGame = document.getElementById('maze-game');
             fifteenGame = document.getElementById('fifteen-game');
             snakeGame = document.getElementById('snake-game');
+            tripleGame = document.getElementById('triple-match-game');
             backButton = document.getElementById('back-button');
             
-             if (landingPage) landingPage.classList.add('hidden');
+            if (landingPage) landingPage.classList.add('hidden');
             if (tarotInterface) tarotInterface.classList.add('hidden');
             if (memoryGame) memoryGame.classList.add('hidden');
             if (mazeGame) mazeGame.classList.add('hidden');
@@ -696,6 +705,7 @@
     <!-- Подключаем основные скрипты -->
     <script src="app.js"></script>
     <script src="memory-game.js"></script>
+    <script src="maze-game.js"></script>
     <script src="fifteen-game.js"></script>
     <script src="snake-game.js"></script>
     <script src="triple-match.js"></script>
