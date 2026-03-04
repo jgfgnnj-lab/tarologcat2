@@ -588,7 +588,17 @@
             loadLevel(nextLevel);
         }
     }
+
+    async function sendFifteenResult() {
+        const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        if (!userId) return;
+        
+        await window.CryptoUtils.sendResult(userId, 'fifteen', elapsedTime, true);
+    }
     
+    // Вызовите эту функцию:
+    sendFifteenResult();
+        
     // Подсказка
     function showHint() {
         if (gameState.isCompleted) return;
