@@ -371,7 +371,17 @@ class TripleMatchGame {
         const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
         if (!userId) return;
         
-        await window.CryptoUtils.sendResult(userId, 'triple', this.score, this.score >= 1000);
+        try {
+            const result = await window.CryptoUtils.sendResult(
+                userId, 
+                'triple', 
+                this.score,           // отправляем очки
+                this.score >= 1000     // true если набрал 1000+
+            );
+            console.log('Triple result sent:', result);
+        } catch (e) {
+            console.error('Error sending triple result:', e);
+        }
     }
     
     updateUI() {
