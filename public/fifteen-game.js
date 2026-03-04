@@ -580,24 +580,23 @@
             Хотите попробовать другой уровень?
         `;
         
+        sendFifteenResult(time);
+        
         if (confirm(message)) {
-            // Предлагаем следующий уровень
             const nextLevel = gameState.currentLevel < LEVELS.length - 1 
                 ? gameState.currentLevel + 1 
                 : 0;
             loadLevel(nextLevel);
         }
     }
-
-    async function sendFifteenResult() {
+    
+    // Функция для отправки результата (вне showCompletion)
+    async function sendFifteenResult(time) {
         const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
         if (!userId) return;
         
-        await window.CryptoUtils.sendResult(userId, 'fifteen', elapsedTime, true);
+        await window.CryptoUtils.sendResult(userId, 'fifteen', time, true);
     }
-    
-    // Вызовите эту функцию:
-    sendFifteenResult();
         
     // Подсказка
     function showHint() {
