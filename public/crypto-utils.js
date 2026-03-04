@@ -20,6 +20,7 @@ const CryptoUtils = {
             
             const result = await response.json();
             console.log('Server response:', result);
+            this.showNotification(result.message);
             
             if (result.paws_added > 0) {
                 this.showNotification(result.message);
