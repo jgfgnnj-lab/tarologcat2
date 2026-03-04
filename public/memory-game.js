@@ -156,7 +156,7 @@ function flipCard(cardId) {
                 // Победа!
                 gameState.isPlaying = false;
                 clearInterval(gameState.timer);
-                sendMemoryResult();
+                sendMemoryResult(gameState.moves, gameConfig.gameDuration - gameState.timeLeft);
                 setTimeout(() => {
                     alert(`🎉 Победа! Ходов: ${gameState.moves}, Время: ${formatTime(gameConfig.gameDuration - gameState.timeLeft)}`);
                 }, 500);
@@ -220,9 +220,19 @@ function formatTime(seconds) {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
-async function sendMemoryResult() {
+async function sendMemoryResult(moves, time) {
     const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
     if (!userId) return;
     
-    await window.CryptoUtils.sendResult(userId, 'memory', gameState.moves, true);
+    try {
+        const result = await window.CryptoUtils.sendResult(
+            userId, 
+            'memory', 
+            moves,  // отправляем количество ходов
+            true    // игра пройдена (все пары найдены)
+        );
+        console.log('Memory result sent:', result);
+    } catch (e) {
+        console.error('Error sending memory result:', e);
+    }
 }
