@@ -212,17 +212,6 @@ class TripleMatchGame {
             this.score += matchCount * 10;
         }
         
-        // Анимируем совпадения
-        matches.forEach(match => {
-            const cell = document.querySelector(`[data-row="${match.row}"][data-col="${match.col}"]`);
-            if (cell) {
-                cell.style.animation = 'match 0.3s ease';
-                setTimeout(() => {
-                    cell.style.animation = '';
-                }, 300);
-            }
-        });
-        
         // Удаляем совпадения
         matches.forEach(match => {
             this.board[match.row][match.col] = null;
