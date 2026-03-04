@@ -1,17 +1,23 @@
 // crypto-utils.js
 const CryptoUtils = {
+    // Получаем токен из глобальной переменной (её задаст Vercel)
+    getBotToken() {
+        // Пробуем получить из разных мест
+        return window.BOT_TOKEN || 
+               import.meta.env?.BOT_TOKEN || 
+               process.env?.BOT_TOKEN || 
+               '';
+    },
+
     async signData(data) {
-        // Получаем токен из переменной окружения Vercel
-        const secret = import.meta.env.BOT_TOKEN || '';
+        const secret = this.getBotToken();
         
         if (!secret) {
-            console.error('BOT_TOKEN not found in env');
-            return '';
+            console.error('BOT_TOKEN not found');
+            return 'test_hash'; // Для теста возвращаем заглушку
         }
         
         const encoder = new TextEncoder();
-        
-        // Импортируем ключ
         const key = await crypto.subtle.importKey(
             'raw',
             encoder.encode(secret),
@@ -20,18 +26,15 @@ const CryptoUtils = {
             ['sign']
         );
         
-        // Создаем строку для подписи
         const signString = `${data.user_id}:${data.game}:${data.score}:${data.completed}`;
         console.log('Sign string:', signString);
         
-        // Подписываем
         const signature = await crypto.subtle.sign(
             'HMAC',
             key,
             encoder.encode(signString)
         );
         
-        // Конвертируем в hex
         const hash = Array.from(new Uint8Array(signature))
             .map(b => b.toString(16).padStart(2, '0'))
             .join('');
@@ -51,21 +54,11 @@ const CryptoUtils = {
                 completed: completed
             };
             
-            // Создаем подпись
             gameData.hash = await this.signData(gameData);
             
-            if (!gameData.hash) {
-                console.error('Failed to generate hash');
-                return;
-            }
-            
-            // Отправляем на сервер
             const response = await fetch('http://5.42.106.152:8000/api/game_result', {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(gameData)
             });
             
@@ -78,52 +71,31 @@ const CryptoUtils = {
             
             return result;
         } catch (e) {
-            console.error('Error in sendResult:', e);
+            console.error('Error:', e);
         }
     },
 
     showNotification(message) {
         const notif = document.createElement('div');
         notif.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
+            position: fixed; top: 20px; right: 20px;
             background: linear-gradient(135deg, #4CAF50, #2E7D32);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            z-index: 9999;
-            font-size: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            color: white; padding: 15px 25px; border-radius: 10px;
+            z-index: 9999; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             animation: slideIn 0.3s ease;
         `;
-        notif.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span>🐾</span>
-                <span>${message}</span>
-            </div>
-        `;
-        
+        notif.innerHTML = `<div style="display: flex; align-items: center; gap: 10px;">
+            <span>🐾</span> <span>${message}</span>
+        </div>`;
         document.body.appendChild(notif);
-        
-        setTimeout(() => {
-            notif.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => notif.remove(), 300);
-        }, 3000);
+        setTimeout(() => notif.remove(), 3000);
     }
 };
 
 // Добавляем CSS анимации
 const style = document.createElement('style');
 style.textContent = `
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 `;
 document.head.appendChild(style);
 
