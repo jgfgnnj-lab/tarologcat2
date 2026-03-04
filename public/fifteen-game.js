@@ -564,6 +564,7 @@
     
     // Показ завершения
     function showCompletion(time) {
+        sendFifteenResult(time, gameState.moves);
         const level = LEVELS[gameState.currentLevel];
         const bestTime = gameState.bestTimes[`level_${gameState.currentLevel}`] || time;
         
@@ -580,22 +581,12 @@
             Хотите попробовать другой уровень?
         `;
         
-        sendFifteenResult(time);
-        
         if (confirm(message)) {
             const nextLevel = gameState.currentLevel < LEVELS.length - 1 
                 ? gameState.currentLevel + 1 
                 : 0;
             loadLevel(nextLevel);
         }
-    }
-    
-    // Функция для отправки результата (вне showCompletion)
-    async function sendFifteenResult(time) {
-        const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-        if (!userId) return;
-        
-        await window.CryptoUtils.sendResult(userId, 'fifteen', time, true);
     }
         
     // Подсказка
@@ -727,6 +718,26 @@
                     </button>
                 </div>
             `;
+        }
+    }
+
+    async function sendFifteenResult(time, moves) {
+        const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        if (!userId) {
+            console.log('No user ID');
+            return;
+        }
+        
+        try {
+            const result = await window.CryptoUtils.sendResult(
+                userId, 
+                'fifteen', 
+                moves,  // отправляем количество ходов
+                true    // игра пройдена
+            );
+            console.log('Fifteen result sent:', result);
+        } catch (e) {
+            console.error('Error sending fifteen result:', e);
         }
     }
     
