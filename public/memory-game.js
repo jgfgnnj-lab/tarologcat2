@@ -156,6 +156,7 @@ function flipCard(cardId) {
                 // Победа!
                 gameState.isPlaying = false;
                 clearInterval(gameState.timer);
+                sendMemoryResult();
                 setTimeout(() => {
                     alert(`🎉 Победа! Ходов: ${gameState.moves}, Время: ${formatTime(gameConfig.gameDuration - gameState.timeLeft)}`);
                 }, 500);
@@ -217,4 +218,11 @@ function formatTime(seconds) {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+async function sendMemoryResult() {
+    const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+    if (!userId) return;
+    
+    await window.CryptoUtils.sendResult(userId, 'memory', gameState.moves, true);
 }
