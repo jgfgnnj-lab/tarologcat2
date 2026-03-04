@@ -363,6 +363,15 @@ class TripleMatchGame {
         }
         
         gameOverScreen.classList.add('show');
+
+        this.sendTripleResult();
+    }
+
+    async sendTripleResult() {
+        const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        if (!userId) return;
+        
+        await window.CryptoUtils.sendResult(userId, 'triple', this.score, this.score >= 2000);
     }
     
     updateUI() {
