@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="maze-game.css">
     <link rel="stylesheet" href="fifteen-game.css">
     <link rel="stylesheet" href="snake-game.css">
+    <link rel="stylesheet" href="triple-match.css">
     
     <style>
         /* Стили для главного меню и кнопки "Назад" */
@@ -95,6 +96,10 @@
             background: linear-gradient(135deg, #4CAF50, #2E7D32);
             color: white;
         }
+        .triple-game-button {
+        background: linear-gradient(135deg, #ff6b6b, #feca57);
+        color: white;
+        }
         
         /* Гарантируем что наши контейнеры видны */
         #tarot-interface,
@@ -136,6 +141,10 @@
             <button class="mode-button snake-game-button" onclick="window.showSnakeMode()">
                 <span>🐍</span>
                 <span>Змейка</span>
+            </button>
+            <button class="mode-button triple-game-button" onclick="window.showTripleMatchMode()">
+                <span>💎</span>
+                <span>Три в ряд</span>
             </button>
         </div>
     </div>
@@ -271,7 +280,12 @@
     <div id="maze-game" class="hidden">
         <!-- Игра загрузится сюда через maze-game.js -->
     </div>
-
+    
+    <!-- Контейнер для игры Три в ряд -->
+    <div id="triple-match-game" class="hidden">
+        <!-- Игра загрузится сюда через triple-match.js -->
+    </div>
+    
     <!-- Контейнер для игры в пятнашки -->
     <div id="fifteen-game" class="hidden">
         <!-- Игра загрузится сюда через fifteen-game.js -->
@@ -599,7 +613,76 @@
             
             document.head.appendChild(script);
         }
-       
+
+        // Функция показа игры Три в ряд
+        window.showTripleMatchMode = function() {
+            console.log('showTripleMatchMode вызвана');
+            
+            currentMode = 'triple';
+            landingPage = document.getElementById('landing-page');
+            tarotInterface = document.getElementById('tarot-interface');
+            memoryGame = document.getElementById('memory-game');
+            mazeGame = document.getElementById('maze-game');
+            fifteenGame = document.getElementById('fifteen-game');
+            snakeGame = document.getElementById('snake-game');
+            backButton = document.getElementById('back-button');
+            
+            if (landingPage) landingPage.classList.add('hidden');
+            if (tarotInterface) tarotInterface.classList.add('hidden');
+            if (memoryGame) memoryGame.classList.add('hidden');
+            if (mazeGame) mazeGame.classList.add('hidden');
+            if (fifteenGame) fifteenGame.classList.add('hidden');
+            if (snakeGame) snakeGame.classList.add('hidden');
+            
+            const tripleGame = document.getElementById('triple-match-game');
+            if (tripleGame) {
+                tripleGame.classList.remove('hidden');
+                tripleGame.style.display = 'block';
+                tripleGame.style.visibility = 'visible';
+                tripleGame.style.opacity = '1';
+            }
+            
+            if (backButton) {
+                backButton.classList.remove('hidden');
+                backButton.style.display = 'block';
+            }
+            
+            if (typeof window.startTripleMatchGame !== 'function') {
+                console.log('Загружаем triple-match.js...');
+                loadTripleMatchScript();
+            } else {
+                console.log('triple-match.js уже загружен, запускаем...');
+                setTimeout(() => {
+                    window.startTripleMatchGame();
+                }, 100);
+            }
+        };
+        
+        function loadTripleMatchScript() {
+            const existingScript = document.getElementById('triple-match-script');
+            if (existingScript) existingScript.remove();
+            
+            if (window.tripleGameInitialized) {
+                window.tripleGameInitialized = false;
+            }
+            
+            const script = document.createElement('script');
+            script.src = 'triple-match.js';
+            script.id = 'triple-match-script';
+            
+            script.onload = () => {
+                console.log('✅ triple-match.js загружен');
+                setTimeout(() => startTripleMatchGame(), 100);
+            };
+            
+            script.onerror = () => {
+                console.error('❌ Ошибка загрузки triple-match.js');
+                alert('Не удалось загрузить игру');
+            };
+            
+            document.head.appendChild(script);
+        }
+        
     </script>
     
     <!-- Подключаем основные скрипты -->
@@ -607,5 +690,6 @@
     <script src="memory-game.js"></script>
     <script src="fifteen-game.js"></script>
     <script src="snake-game.js"></script>
+    <script src="triple-match.js"></script>
 </body>
 </html>
