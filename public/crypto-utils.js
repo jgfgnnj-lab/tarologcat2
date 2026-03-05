@@ -69,10 +69,8 @@ const CryptoUtils = {
             // Добавляем hash в данные
             gameData.hash = hash;
             
-            // Используем HTTPS в продакшене
-            const apiUrl = process.env.NODE_ENV === 'production' 
-                ? 'https://5.42.106.152:8000/api/game_result'  // HTTPS для продакшена
-                : 'http://5.42.106.152:8000/api/game_result';   // HTTP для разработки
+            
+            const apiUrl = 'http://5.42.106.152:8000/api/game_result'; 
             
             const response = await fetch(apiUrl, {
                 method: 'POST',
