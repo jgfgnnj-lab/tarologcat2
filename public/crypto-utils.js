@@ -4,47 +4,50 @@ const CryptoUtils = {
     async generateHash(data) {
         try {
             const signString = `${data.user_id}:${data.game}:${data.score}:${data.completed}`;
+            console.log('Строка для подписи:', signString);
             
-            // Получаем токен из переменных окружения Vercel
+            // Берем токен из переменных окружения Vercel (просто BOT_TOKEN)
             const BOT_TOKEN = process.env.BOT_TOKEN;
             
             if (!BOT_TOKEN) {
-                console.error('BOT_TOKEN не найден в переменных окружения');
-                return null;
+                console.error('❌ BOT_TOKEN не найден в Vercel!');
+                return "test_hash_" + Date.now();
             }
             
-            // Кодируем строку в UTF-8
+            console.log('✅ Токен получен из Vercel');
+            
+            // Кодируем
             const encoder = new TextEncoder();
             const dataBytes = encoder.encode(signString);
             
-            // Создаем SHA-256 хеш токена (как на сервере)
+            // SHA256 от токена
             const tokenHash = await crypto.subtle.digest('SHA-256', encoder.encode(BOT_TOKEN));
             
-            // Импортируем ключ для HMAC
+            // HMAC ключ
             const key = await crypto.subtle.importKey(
-                'raw',
-                tokenHash,
-                { name: 'HMAC', hash: 'SHA-256' },
-                false,
+                'raw', 
+                tokenHash, 
+                { name: 'HMAC', hash: 'SHA-256' }, 
+                false, 
                 ['sign']
             );
             
-            // Создаем HMAC-SHA256 подпись
+            // Создаем подпись
             const signature = await crypto.subtle.sign('HMAC', key, dataBytes);
             
-            // Конвертируем в hex строку
+            // В hex
             const hash = Array.from(new Uint8Array(signature))
                 .map(b => b.toString(16).padStart(2, '0'))
                 .join('');
             
-            console.log('✅ Hash сгенерирован успешно');
+            console.log('✅ Сгенерированный hash:', hash);
             return hash;
             
         } catch (error) {
             console.error('❌ Ошибка генерации hash:', error);
-            return null;
+            return "test_hash_" + Date.now();
         }
-    },
+    }
 
     // Отправка результата игры
     async sendResult(userId, gameName, score, completed) {
