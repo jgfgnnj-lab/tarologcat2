@@ -1,5 +1,6 @@
 // crypto-utils.js - ВЕРСИЯ БЕЗ ASYNC ДЛЯ СТАРЫХ БРАУЗЕРОВ
 const CryptoUtils = {
+    apiUrl: 'https://tarocatapi.ru/api/game_result',
     // Генерация подписи (без async)
     generateHash: function(data) {
         return new Promise(function(resolve, reject) {
@@ -48,6 +49,7 @@ const CryptoUtils = {
 
     // Отправка результата (без async)
     sendResult: function(userId, gameName, score, completed) {
+        var apiUrl = this.apiUrl;
         console.log('📤 sendResult вызван:', {userId, gameName, score, completed});
         
         var self = this;
@@ -63,8 +65,6 @@ const CryptoUtils = {
             .then(function(hash) {
                 gameData.hash = hash;
                 console.log('Данные для отправки:', gameData);
-                
-                var apiUrl = 'https://tarocatapi.ru/api/game_result';
                 
                 return fetch(apiUrl, {
                     method: 'POST',
