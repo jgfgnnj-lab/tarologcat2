@@ -13,7 +13,7 @@ const CryptoUtils = {
                 
                 if (!BOT_TOKEN) {
                     console.error('❌ BOT_TOKEN не найден');
-                    resolve('test_hash_' + Date.now());
+                    reject('No token');  // ← Ошибка, а не заглушка
                     return;
                 }
                 
