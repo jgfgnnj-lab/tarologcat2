@@ -1,91 +1,72 @@
-// crypto-utils.js - ВЕРСИЯ БЕЗ ASYNC ДЛЯ СТАРЫХ БРАУЗЕРОВ
+// crypto-utils.js
 const CryptoUtils = {
-    apiUrl: 'https://tarocatapi.ru/api/game_result',
-    // Генерация подписи (без async)
-    generateHash: function(data) {
-        return new Promise(function(resolve, reject) {
-            try {
-                var signString = data.user_id + ':' + data.game + ':' + data.score + ':' + data.completed;
-                console.log('Строка для подписи:', signString);
-                
-                // Получаем токен из Vercel
-                var BOT_TOKEN = process.env.BOT_TOKEN;
-                
-                if (!BOT_TOKEN) {
-                    console.error('❌ BOT_TOKEN не найден');
-                    reject('No token');  // ← Ошибка, а не заглушка
-                    return;
-                }
-                
-                // Используем Web Crypto API
-                var encoder = new TextEncoder();
-                var dataBytes = encoder.encode(signString);
-                
-                crypto.subtle.digest('SHA-256', encoder.encode(BOT_TOKEN))
-                    .then(function(tokenHash) {
-                        return crypto.subtle.importKey('raw', tokenHash, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-                    })
-                    .then(function(key) {
-                        return crypto.subtle.sign('HMAC', key, dataBytes);
-                    })
-                    .then(function(signature) {
-                        var hash = Array.from(new Uint8Array(signature))
-                            .map(function(b) { return b.toString(16).padStart(2, '0'); })
-                            .join('');
-                        console.log('✅ Сгенерированный hash:', hash);
-                        resolve(hash);
-                    })
-                    .catch(function(error) {
-                        console.error('❌ Ошибка:', error);
-                        resolve('test_hash_' + Date.now());
-                    });
-                    
-            } catch (error) {
-                console.error('❌ Ошибка:', error);
-                resolve('test_hash_' + Date.now());
-            }
-        });
-    },
+    apiUrl: import.meta.env.VITE_API_URL || 'https://tarocatapi.ru/api/game_result',
+    signApiUrl: '/api/sign',  // локальный эндпоинт в Vercel
 
-    // Отправка результата (без async)
-    sendResult: function(userId, gameName, score, completed) {
-        var apiUrl = this.apiUrl;
-        console.log('📤 sendResult вызван:', {userId, gameName, score, completed});
-        
-        var self = this;
-        var gameData = {
-            user_id: userId,
-            game: gameName,
-            score: score,
-            completed: completed
-        };
-        
-        // Генерируем hash
-        this.generateHash(gameData)
-            .then(function(hash) {
-                gameData.hash = hash;
-                console.log('Данные для отправки:', gameData);
-                
-                return fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(gameData)
-                });
-            })
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(result) {
-                console.log('✅ Ответ сервера:', result);
-                self.showNotification(result.message, result.paws_added > 0 ? 'success' : 'info');
-            })
-            .catch(function(error) {
-                console.error('❌ Ошибка отправки:', error);
-                self.showNotification('Ошибка соединения с сервером', 'error');
+    // Получение подписи с сервера
+    getSignature: async function(userId, gameName, score, completed) {
+        try {
+            const response = await fetch(this.signApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: userId,
+                    game: gameName,
+                    score: score,
+                    completed: completed
+                })
             });
+
+            if (!response.ok) {
+                throw new Error('Failed to get signature');
+            }
+
+            const data = await response.json();
+            return data.hash;
+            
+        } catch (error) {
+            console.error('❌ Error getting signature:', error);
+            throw error;
+        }
     },
 
-    // Показать уведомление
+    // Отправка результата
+    sendResult: async function(userId, gameName, score, completed) {
+        console.log('📤 sendResult:', {userId, gameName, score, completed});
+        
+        try {
+            // 1. Получаем подпись с сервера
+            const hash = await this.getSignature(userId, gameName, score, completed);
+            
+            // 2. Отправляем результат
+            const gameData = {
+                user_id: userId,
+                game: gameName,
+                score: score,
+                completed: completed,
+                hash: hash
+            };
+
+            const response = await fetch(this.apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(gameData)
+            });
+
+            const result = await response.json();
+            console.log('✅ Ответ сервера:', result);
+            
+            this.showNotification(result.message, result.paws_added > 0 ? 'success' : 'info');
+            return result;
+
+        } catch (error) {
+            console.error('❌ Ошибка:', error);
+            this.showNotification('Ошибка соединения с сервером', 'error');
+            throw error;
+        }
+    },
+
+    // Показать уведомление (без изменений)
     showNotification: function(message, type) {
         type = type || 'info';
         var colors = {
@@ -114,14 +95,11 @@ const CryptoUtils = {
         setTimeout(function() {
             notif.remove();
         }, 3000);
-    },
-
-    // Тестовая функция
-    test: function() {
-        console.log('🧪 Тестирование...');
-        this.sendResult(5176634459, 'memory', 42, true);
     }
 };
+
+window.CryptoUtils = CryptoUtils;
+console.log('✅ CryptoUtils загружен (с серверной подписью)');
 
 // Делаем доступным глобально
 window.CryptoUtils = CryptoUtils;
