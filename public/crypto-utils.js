@@ -1,12 +1,13 @@
 // crypto-utils.js
 const CryptoUtils = {
-    apiUrl: import.meta.env.VITE_API_URL || 'https://tarocatapi.ru/api/game_result',
-    signApiUrl: '/api/sign',  // локальный эндпоинт в Vercel
+    // 👇 ЗАМЕНИ ЭТИ ДВЕ СТРОКИ
+    apiUrl: 'https://tarocatapi.ru/api/game_result',
+    signApiUrl: 'https://tarologcat2.vercel.app/api/sign',
 
     // Получение подписи с сервера
     getSignature: async function(userId, gameName, score, completed) {
         try {
-            const response = await fetch(this.signApiUrl, {
+            const response = await fetch(this.signApiUrl, {  // будет использовать новый URL
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
