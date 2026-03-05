@@ -1,15 +1,12 @@
 {
   "builds": [
+    { "src": "api/sign.js", "use": "@vercel/node" },
     { "src": "api/index.py", "use": "@vercel/python" },
     { "src": "public/**", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/api/sign", "dest": "/api/sign.js" },
     { "src": "/api/(.*)", "dest": "/api/index.py" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ]
-}
-{
-    "rewrites": [
-        { "source": "/api/(.*)", "destination": "/api/$1" }
-    ]
 }
