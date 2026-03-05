@@ -536,24 +536,71 @@ class SnakeGame {
         }
         
         gameOverScreen.classList.add('show');
-        this.sendSnakeResult();
     }
     
-    async sendSnakeResult() {
+    sendSnakeResult() {
         const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-        if (!userId) return;
-        
-        try {
-            const result = await window.CryptoUtils.sendResult(
-                userId, 
-                'snake', 
-                this.score,  // отправляем очки
-                false        // не требуется полное прохождение
-            );
-            console.log('Snake result sent:', result);
-        } catch (e) {
-            console.error('Error sending snake result:', e);
+        if (!userId) {
+            console.error('❌ Нет Telegram WebApp или user ID');
+            return;
         }
+        
+        const gameResult = {
+            type: 'game_result',
+            game: 'snake',
+            score: this.score,
+            completed: false,
+            timestamp: Date.now()
+        };
+        
+        console.log('📤 Отправка результата snake:', gameResult);
+        window.Telegram.WebApp.sendData(JSON.stringify(gameResult));
+        
+        // Показываем уведомление
+        this.showNotification('✅ Результат отправлен! Лапки скоро придут');
+    }
+    
+    // Добавь ЭТУ функцию после sendSnakeResult() (перед закрывающей скобкой класса)
+    showNotification(message) {
+        const notif = document.createElement('div');
+        notif.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 10000;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease;
+        `;
+        notif.textContent = message;
+        document.body.appendChild(notif);
+        
+        // Добавляем анимацию
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        setTimeout(() => {
+            notif.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notif.remove(), 300);
+        }, 3000);
     }
     
     changeDirection(newDirection) {
