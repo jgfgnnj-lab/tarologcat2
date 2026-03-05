@@ -536,6 +536,7 @@ class SnakeGame {
         }
         
         gameOverScreen.classList.add('show');
+        this.sendSnakeResult();
     }
     
     sendSnakeResult() {
