@@ -514,7 +514,7 @@ class SnakeGame {
             this.highScore = this.score;
             localStorage.setItem('snakeHighScore', this.highScore);
         }
-        
+        this.sendSnakeResult()
         // Показываем экран окончания игры
         const gameOverScreen = document.getElementById('snake-game-over');
         const finalScore = document.getElementById('final-score');
@@ -536,7 +536,7 @@ class SnakeGame {
         }
         
         gameOverScreen.classList.add('show');
-        this.sendSnakeResult();
+        
     }
     
     sendSnakeResult() {
