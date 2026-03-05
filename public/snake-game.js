@@ -505,6 +505,9 @@ class SnakeGame {
     }
     
     endGame() {
+        console.log('🔍 endGame вызвана');
+        console.log('Telegram.WebApp:', window.Telegram?.WebApp);
+        console.log('User ID:', window.Telegram?.WebApp?.initDataUnsafe?.user?.id);
         this.gameOver = true;
         this.isPaused = true;
         clearInterval(this.gameLoop);
