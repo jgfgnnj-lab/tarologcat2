@@ -73,7 +73,7 @@ const CryptoUtils = {
             gameData.hash = hash;
             
             
-            const apiUrl = 'http://5.42.106.152:8000/api/game_result'; 
+            const apiUrl = 'https://tarocatapi.ru/api/game_result'; 
             
             const response = await fetch(apiUrl, {
                 method: 'POST',
